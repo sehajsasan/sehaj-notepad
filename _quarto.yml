@@ -10,6 +10,9 @@ website:
         href: https://github.com/sehajsasan
       - icon: twitter
         href: https://twitter.com/sehajsasan
+  comments: 
+    utterances:
+      repo: quarto-dev/quarto-web
 format:
   html:
     theme: cosmo
