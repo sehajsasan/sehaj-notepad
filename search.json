@@ -1,12 +1,5 @@
 [
   {
-    "objectID": "posts/welcome/index.html",
-    "href": "posts/welcome/index.html",
-    "title": "Welcome To My Blog",
-    "section": "",
-    "text": "This is the first post in a Quarto blog. Welcome!\n\nSince this post doesn’t specify an explicit image, the first image in the post will be used in the listing page of posts."
-  },
-  {
     "objectID": "posts/nca/index.html",
     "href": "posts/nca/index.html",
     "title": "Neural Cellular Automata",
@@ -67,13 +60,6 @@
     "href": "index.html",
     "title": "Sehaj-notepad",
     "section": "",
-    "text": "Neural Cellular Automata\n\n\n\n\n\n\nAI\n\n\npython\n\n\njupyter\n\n\ncode\n\n\n\nSelf-organizing systems of simple cells can produce complex patterns.\n\n\n\n\n\nFeb 5, 2024\n\n\nSehajdeep Singh\n\n\n\n\n\n\n\n\n\n\n\n\nPost With Code\n\n\n\n\n\n\nnews\n\n\ncode\n\n\nanalysis\n\n\n\n\n\n\n\n\n\nFeb 5, 2024\n\n\nHarlow Malloc\n\n\n\n\n\n\n\n\n\n\n\n\nWelcome To My Blog\n\n\n\n\n\n\nnews\n\n\n\n\n\n\n\n\n\nFeb 2, 2024\n\n\nTristan O’Malley\n\n\n\n\n\n\nNo matching items"
-  },
-  {
-    "objectID": "posts/post-with-code/index.html",
-    "href": "posts/post-with-code/index.html",
-    "title": "Post With Code",
-    "section": "",
-    "text": "This is a post with executable code."
+    "text": "Neural Cellular Automata\n\n\n\n\n\n\nAI\n\n\npython\n\n\njupyter\n\n\ncode\n\n\n\nSelf-organizing systems of simple cells can produce complex patterns.\n\n\n\n\n\nFeb 5, 2024\n\n\nSehajdeep Singh\n\n\n\n\n\n\nNo matching items"
   }
 ]
