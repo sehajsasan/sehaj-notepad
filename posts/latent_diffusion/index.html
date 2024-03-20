@@ -1,0 +1,1719 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.4.549">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Sehaj-notepad - Latent Diffusion and Perceptual Latent Loss to Generate Church images</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+<script src="https://unpkg.com/@jupyter-widgets/html-manager@*/dist/embed-amd.js" crossorigin="anonymous"></script>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed fullcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Sehaj-notepad</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/sehajsasan"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://twitter.com/sehajsasan"> <i class="bi bi-twitter" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+          <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Latent Diffusion and Perceptual Latent Loss to Generate Church images</h1>
+                      </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+
+<section id="latent-diffusion-and-perceptual-latent-loss-to-generate-church-images" class="level1">
+<h1>Latent Diffusion and Perceptual Latent Loss to Generate Church images</h1>
+<p>In today’s post, we will build Latent Diffusion models to generate Church images at reduced training times using latents and using a pre-trained ImageNet latent classifier as a component to add perceptual loss. We will be using LSUN Church dataset, trained for 30 epochs on our U-Net model. We will first train a U-Net model with just MSE loss to sample our Church images, and then intorduce the a perceptual loss function in the mix to see how it affects the generated samples.The intuition behind using the Imagenet latent classifier to add perceptual loss is that the model has learnt about images in the latent space and its parameters have captured information about features of images, all in the compressed latent space.By focusing on high-level features, perceptual loss function can produce results that align better with human visual perception, leading to higher-quality image generation. Let’s dive into the notebook and understand the entire process piece by piece.</p>
+<p>The notebook is structured as follows - We compress(encode) the LSUN Church dataset using sd-vae-ft-ema VAE.These latents map 3 channel 256 x 256 pixel images down by a spatial resolution factor of 8 to 4 channels 32 x 32 latents. - Then we add noise to these latent images using Linear Noise scheduler and train a U-Net model to predict noise in an image which is in the latent space using these encoded latents. First the model is trained just with MSE loss, then perceptual loss is added to create a combined loss function. The perceptual loss is added courtesy of a external network traied on the entire Imagenet Dataset in the latent space. - Using DDIM sampler, we generate Church images.</p>
+<section id="imports" class="level2">
+<h2 class="anchored" data-anchor-id="imports">Imports</h2>
+<div id="defd730c-f113-4e15-84a2-174fbf4d09ce" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>pip install <span class="op">-</span>Uqq git<span class="op">+</span>https:<span class="op">//</span>github.com<span class="op">/</span>fastai<span class="op">/</span>course22p2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="dbe2ba37-7bdd-43c2-8c49-5b559aeb79eb" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span>capture</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>pip install git<span class="op">+</span>https:<span class="op">//</span>github.com<span class="op">/</span>huggingface<span class="op">/</span>transformers</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cbe5e09d-06d6-41a6-92f6-e5e105a08fbb" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span>capture</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>pip install accelerate</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="d6c0d1bd-cf16-42e9-9731-3697d6be7963" class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> timm, torch, random, datasets, math, fastcore.<span class="bu">all</span> <span class="im">as</span> fc, numpy <span class="im">as</span> np, matplotlib <span class="im">as</span> mpl, matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torchvision.transforms <span class="im">as</span> T</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torchvision.transforms.functional <span class="im">as</span> TF,torch.nn.functional <span class="im">as</span> F</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch.utils.data <span class="im">import</span> DataLoader,default_collate</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch.nn <span class="im">import</span> init</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> fastcore.foundation <span class="im">import</span> L</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch <span class="im">import</span> nn,tensor</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> datasets <span class="im">import</span> load_dataset</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> operator <span class="im">import</span> itemgetter</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torcheval.metrics <span class="im">import</span> MulticlassAccuracy</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> functools <span class="im">import</span> partial</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch.optim <span class="im">import</span> lr_scheduler</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch <span class="im">import</span> optim</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torchvision.io <span class="im">import</span> read_image,ImageReadMode</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> miniai.datasets <span class="im">import</span> <span class="op">*</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> miniai.conv <span class="im">import</span> <span class="op">*</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> miniai.learner <span class="im">import</span> <span class="op">*</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> miniai.activations <span class="im">import</span> <span class="op">*</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> miniai.init <span class="im">import</span> <span class="op">*</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> miniai.sgd <span class="im">import</span> <span class="op">*</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a><span class="co"># from miniai.resnet import *</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> miniai.augment <span class="im">import</span> <span class="op">*</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> miniai.accel <span class="im">import</span> <span class="op">*</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> miniai.training <span class="im">import</span> <span class="op">*</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="18af4ddf-2304-45c8-a803-be03dd76aa89" class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># from miniai.imports import *</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> miniai.diffusion <span class="im">import</span> <span class="op">*</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> glob <span class="im">import</span> glob</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> fastprogress <span class="im">import</span> progress_bar</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> diffusers <span class="im">import</span> AutoencoderKL, UNet2DConditionModel</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="af6e623c-9b0b-4bed-8f72-27abae4c3cf1" class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> timm</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="e29cd5a7-7c77-4851-90f6-761a93f44c19" class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>torch.set_printoptions(precision<span class="op">=</span><span class="dv">4</span>, linewidth<span class="op">=</span><span class="dv">140</span>, sci_mode<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>torch.manual_seed(<span class="dv">1</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>mpl.rcParams[<span class="st">'image.cmap'</span>] <span class="op">=</span> <span class="st">'gray_r'</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>mpl.rcParams[<span class="st">'figure.dpi'</span>] <span class="op">=</span> <span class="dv">70</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>set_seed(<span class="dv">42</span>)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> fc.defaults.cpus<span class="op">&gt;</span><span class="dv">8</span>: fc.defaults.cpus<span class="op">=</span><span class="dv">8</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="data" class="level2">
+<h2 class="anchored" data-anchor-id="data">Data</h2>
+<p>We will start off by compressing the LSUN Church dataset images into VAE encoded latents.</p>
+<div id="af5bd6ff-31ec-4da4-9c72-f32adbe1b562" class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>path_data <span class="op">=</span> Path(<span class="st">'data'</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>path_data.mkdir(exist_ok<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>path <span class="op">=</span> path_data<span class="op">/</span><span class="st">'church'</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="94452425-654b-4c68-a988-85cb022aa08e" class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>bs <span class="op">=</span> <span class="dv">64</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="b0f8dcd8-7f5a-4462-ba1c-187f57643bbd" class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> to_img(f): <span class="cf">return</span> read_image(f, mode<span class="op">=</span>ImageReadMode.RGB)<span class="op">/</span><span class="dv">255</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We read each file and convert it into a 256X256 image. Remember, VAE encodes 256X256 images into 32X32 in the latent space(and 64X64 for 512X512 images). We do need the images to be of same size to pass it to VAE decoder in batches.</p>
+<div id="b12907f8-3e67-41ea-96b5-9e49f143acee" class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> ImagesDS:</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, spec):</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.path <span class="op">=</span> Path(path)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.files <span class="op">=</span> glob(<span class="bu">str</span>(spec), recursive<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__len__</span>(<span class="va">self</span>): <span class="cf">return</span> <span class="bu">len</span>(<span class="va">self</span>.files)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__getitem__</span>(<span class="va">self</span>, i): <span class="cf">return</span> to_img(<span class="va">self</span>.files[i])[:, :<span class="dv">256</span>,:<span class="dv">256</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="ffa6d378-caee-41f6-bd10-52f564450e99" class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>ds <span class="op">=</span> ImagesDS(path<span class="op">/</span><span class="ss">f'**/*.jpeg'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="d63606c2-7fd6-43fe-83f2-f50ec68d23a7" class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="bu">len</span>(ds)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="14">
+<pre><code>126227</code></pre>
+</div>
+</div>
+<p>Let’s have a look into our dataset</p>
+<div id="8fad4b30-ff38-45da-b02e-88cf0e12c3f2" class="cell" data-execution_count="17">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>dl <span class="op">=</span> DataLoader(ds, batch_size<span class="op">=</span>bs, num_workers<span class="op">=</span>fc.defaults.cpus)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>xb <span class="op">=</span> <span class="bu">next</span>(<span class="bu">iter</span>(dl))</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>show_images(xb[:<span class="dv">16</span>], imsize<span class="op">=</span><span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-15-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<div id="3cb4f87a-39cf-4316-8fb9-230abd06d7a0" class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>vae <span class="op">=</span> AutoencoderKL.from_pretrained(<span class="st">"stabilityai/sd-vae-ft-ema"</span>).cuda().requires_grad_(<span class="va">False</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"56ae5c9537cd4a89901425180268565c","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+</script>
+</div>
+<div class="cell-output cell-output-display">
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"69692814308547f28309be57e21fe2d0","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+</script>
+</div>
+</div>
+<div id="dc0e963e-26f6-4873-85c9-71f3d7e35947" class="cell" data-execution_count="19">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>xe <span class="op">=</span> vae.encode(xb.cuda())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="825a719f-4bc0-4227-968f-4fec06ea55a4" class="cell" data-execution_count="20">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>xs <span class="op">=</span> xe.latent_dist.mean[:<span class="dv">16</span>]</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>xs.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="20">
+<pre><code>torch.Size([16, 4, 32, 32])</code></pre>
+</div>
+</div>
+<p>The below cell shows that the encoded images are 48 times smaller than the original pixel images requiring 48 times less memory and less compute.</p>
+<div id="79d527c3-4ab2-4268-942e-f43a1e625466" class="cell" data-execution_count="21">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>(<span class="dv">16</span><span class="op">*</span><span class="dv">3</span><span class="op">*</span><span class="dv">256</span><span class="op">*</span><span class="dv">256</span>)<span class="op">/</span>(<span class="dv">16</span><span class="op">*</span><span class="dv">4</span><span class="op">*</span><span class="dv">32</span><span class="op">*</span><span class="dv">32</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="21">
+<pre><code>48.0</code></pre>
+</div>
+</div>
+<p>Let’s visualise the images in the latent space</p>
+<div id="aafb7ad1-120d-4b12-a4bf-a067b3c1ea57" class="cell" data-execution_count="22">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>show_images(((xs[:<span class="dv">16</span>,:<span class="dv">3</span>])<span class="op">/</span><span class="dv">4</span>).sigmoid(), imsize<span class="op">=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-20-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The smaller encoded images are no good, if they can’t be transformed into their original form without losing its characteristics and visuals. We decode them using VAE and they look as good as the originals.</p>
+<div id="54cb42e3-ec61-4764-92f0-a39cec59748a" class="cell" data-execution_count="23">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>xd <span class="op">=</span> to_cpu(vae.decode(xs))</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>show_images(xd[<span class="st">'sample'</span>].clamp(<span class="dv">0</span>,<span class="dv">1</span>), imsize<span class="op">=</span><span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-21-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<section id="memory-mapped-numpy-file" class="level3">
+<h3 class="anchored" data-anchor-id="memory-mapped-numpy-file">Memory mapped numpy file</h3>
+<p>We are going to store our latent data into a memory mapped numpy file. Whatever memory numpy uses in RAM, is copied to the disk and all operations are written onto disk as well.Even though it is on disk, it still uses caching to get the data on RAM which you are using at a particular instance without comprimising speed.</p>
+<div id="d399ee7a-bad8-4ae4-b1d8-0ddd1a18e8c1" class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>mmpath <span class="op">=</span> Path(<span class="st">'data/church/data.npmm'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The first dimension is the number of images in our dataset</p>
+<div id="0154d69e-7988-4fd2-ac39-d8c5b677ce08" class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>mmshape <span class="op">=</span> (<span class="dv">126227</span>,<span class="dv">4</span>,<span class="dv">32</span>,<span class="dv">32</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We go through the dataset, encode it as a (4,32,32) latent image, and save it on disk.</p>
+<div id="4cf15acc-e7ba-433c-bf32-bfd9d4396c36" class="cell" data-execution_count="24">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">not</span> mmpath.exists():</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> np.memmap(mmpath, np.float32, mode<span class="op">=</span><span class="st">'w+'</span>, shape<span class="op">=</span>mmshape)</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>    i <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> b <span class="kw">in</span> progress_bar(dl):</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>        n <span class="op">=</span> <span class="bu">len</span>(b)</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>        a[i:i<span class="op">+</span>n] <span class="op">=</span> to_cpu(vae.encode(b.cuda()).latent_dist.mean).numpy()</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>        i <span class="op">+=</span> n</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>    a.flush()</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">del</span>(a)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    progress:not([value]), progress:not([value])::-webkit-progress-bar {
+        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style>
+</div>
+<div class="cell-output cell-output-display">
+
+    <div>
+      <progress value="1973" class="" max="1973" style="width:300px; height:20px; vertical-align: middle;"></progress>
+      100.00% [1973/1973 49:27&lt;00:00]
+    </div>
+    
+</div>
+</div>
+<div id="1051e722-99c0-43ed-8fc0-ce3046e7f0e6" class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>lats <span class="op">=</span> np.memmap(mmpath, dtype<span class="op">=</span>np.float32, mode<span class="op">=</span><span class="st">'r'</span>, shape<span class="op">=</span>mmshape)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="183e6478-f06f-46b9-977a-5857b1d266f0" class="cell" data-execution_count="28">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>b <span class="op">=</span> torch.tensor(lats[:<span class="dv">16</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="8cabed23-d29e-43c5-b062-f57c7a5d5534" class="cell" data-execution_count="29">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>xd <span class="op">=</span> to_cpu(vae.decode(b.cuda()))</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>show_images(xd[<span class="st">'sample'</span>].clamp(<span class="dv">0</span>,<span class="dv">1</span>), imsize<span class="op">=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-27-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+</section>
+<section id="noisify" class="level1">
+<h1>Noisify</h1>
+<p>The following section, adds noise to our latents which the U-Net model will be trained to predict. We use the simple linear noise scheduler.</p>
+<div id="cac95c21-8168-4da1-9c54-04a295a00b69" class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> collate_ddpm(b): <span class="cf">return</span> noisify(default_collate(b)<span class="op">*</span><span class="fl">0.2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="3b71de5e-83ef-4627-9f5f-8a26dcc110aa" class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> <span class="bu">len</span>(lats)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Splitting data into 90% train and 10% validation.</p>
+<div id="cd7e9cb6-d737-4df6-b02f-7a0027844979" class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>tds <span class="op">=</span> lats[:n<span class="op">//</span><span class="dv">10</span><span class="op">*</span><span class="dv">9</span> ]</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>vds <span class="op">=</span> lats[ n<span class="op">//</span><span class="dv">10</span><span class="op">*</span><span class="dv">9</span>:]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="3f418f82-f0d3-4d33-aa85-1915978a50cd" class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>bs <span class="op">=</span> <span class="dv">128</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="a497f507-468e-401c-9876-4a8def324a7d" class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>dls <span class="op">=</span> DataLoaders(<span class="op">*</span>get_dls(tds, vds, bs<span class="op">=</span>bs, num_workers<span class="op">=</span>fc.defaults.cpus, collate_fn<span class="op">=</span>collate_ddpm))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="9d93dba0-1b06-48dc-b617-0dd16ec7f1dd" class="cell" data-execution_count="16">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="bu">len</span>(dls.train)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="16">
+<pre><code>888</code></pre>
+</div>
+</div>
+<div id="a8295c17-2730-4790-9bf6-af3b252b58f0" class="cell" data-execution_count="17">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> warnings</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="3c3d651f-d111-48fc-9734-52c38db15c6e" class="cell" data-execution_count="18">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>warnings.simplefilter(<span class="st">'ignore'</span>, <span class="pp">UserWarning</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="956fa8ca-7aee-456f-8894-0642462fd976" class="cell" data-execution_count="19">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>(xt,t),eps <span class="op">=</span> b <span class="op">=</span> <span class="bu">next</span>(<span class="bu">iter</span>(dls.train))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="91d0f049-d83c-4137-a037-bf6f407bc86d" class="cell" data-execution_count="21">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>show_images(xt[:<span class="dv">9</span>,<span class="dv">0</span>], imsize<span class="op">=</span><span class="fl">1.5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-37-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>We can see the different noise levels added to different images according to the noise scheduler.</p>
+<div id="40f4a4d4-6877-4614-8832-e3a640adc7a5" class="cell" data-execution_count="22">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>xte <span class="op">=</span> vae.decode(xt[:<span class="dv">9</span>].cuda()<span class="op">*</span><span class="dv">5</span>)[<span class="st">'sample'</span>]</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>show_images(xte.clamp(<span class="dv">0</span>,<span class="dv">1</span>), imsize<span class="op">=</span><span class="fl">1.5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-38-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="train" class="level1">
+<h1>Train</h1>
+<p>First we are going to train with just MSE loss function. Learner is the custom class from the MiniAi library which implements the training loop. - As we saw we have 126227 Church images in our dataset - We are going to train our U-Net model to predict noise in these images to be later used with a DDIM sampler to generate Church images - cbs is one or a list of Callbacks to pass to the Learner. Callbacks are used for every tweak of the training loop.</p>
+<div id="354da2e1-4dc8-476b-9157-9c9c388c5aa2" class="cell" data-execution_count="18">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Learner():</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, model, dls<span class="op">=</span>(<span class="dv">0</span>,), loss_func<span class="op">=</span>F.mse_loss, lr<span class="op">=</span><span class="fl">0.1</span>, cbs<span class="op">=</span><span class="va">None</span>, opt_func<span class="op">=</span>optim.SGD):</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>        cbs <span class="op">=</span> fc.L(cbs)</span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>        fc.store_attr()</span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">@with_cbs</span>(<span class="st">'batch'</span>)</span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> _one_batch(<span class="va">self</span>):</span>
+<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.predict()</span>
+<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.callback(<span class="st">'after_predict'</span>)</span>
+<span id="cb42-10"><a href="#cb42-10" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.get_loss()</span>
+<span id="cb42-11"><a href="#cb42-11" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.callback(<span class="st">'after_loss'</span>)</span>
+<span id="cb42-12"><a href="#cb42-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="va">self</span>.training:</span>
+<span id="cb42-13"><a href="#cb42-13" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.backward()</span>
+<span id="cb42-14"><a href="#cb42-14" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.callback(<span class="st">'after_backward'</span>)</span>
+<span id="cb42-15"><a href="#cb42-15" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.step()</span>
+<span id="cb42-16"><a href="#cb42-16" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.callback(<span class="st">'after_step'</span>)</span>
+<span id="cb42-17"><a href="#cb42-17" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.zero_grad()</span>
+<span id="cb42-18"><a href="#cb42-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-19"><a href="#cb42-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">@with_cbs</span>(<span class="st">'epoch'</span>)</span>
+<span id="cb42-20"><a href="#cb42-20" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> _one_epoch(<span class="va">self</span>):</span>
+<span id="cb42-21"><a href="#cb42-21" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> <span class="va">self</span>.<span class="bu">iter</span>,<span class="va">self</span>.batch <span class="kw">in</span> <span class="bu">enumerate</span>(<span class="va">self</span>.dl): <span class="va">self</span>._one_batch()</span>
+<span id="cb42-22"><a href="#cb42-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-23"><a href="#cb42-23" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> one_epoch(<span class="va">self</span>, training):</span>
+<span id="cb42-24"><a href="#cb42-24" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.model.train(training)</span>
+<span id="cb42-25"><a href="#cb42-25" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.dl <span class="op">=</span> <span class="va">self</span>.dls.train <span class="cf">if</span> training <span class="cf">else</span> <span class="va">self</span>.dls.valid</span>
+<span id="cb42-26"><a href="#cb42-26" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>._one_epoch()</span>
+<span id="cb42-27"><a href="#cb42-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-28"><a href="#cb42-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">@with_cbs</span>(<span class="st">'fit'</span>)</span>
+<span id="cb42-29"><a href="#cb42-29" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> _fit(<span class="va">self</span>, train, valid):</span>
+<span id="cb42-30"><a href="#cb42-30" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> <span class="va">self</span>.epoch <span class="kw">in</span> <span class="va">self</span>.epochs:</span>
+<span id="cb42-31"><a href="#cb42-31" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> train: <span class="va">self</span>.one_epoch(<span class="va">True</span>)</span>
+<span id="cb42-32"><a href="#cb42-32" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> valid: torch.no_grad()(<span class="va">self</span>.one_epoch)(<span class="va">False</span>)</span>
+<span id="cb42-33"><a href="#cb42-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-34"><a href="#cb42-34" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> fit(<span class="va">self</span>,eps, betas<span class="op">=</span>(<span class="fl">0.9</span>, <span class="fl">0.999</span>), weight_decay<span class="op">=</span><span class="fl">0.01</span>,n_epochs<span class="op">=</span><span class="dv">1</span>, train<span class="op">=</span><span class="va">True</span>, valid<span class="op">=</span><span class="va">True</span>, cbs<span class="op">=</span><span class="va">None</span>, lr<span class="op">=</span><span class="va">None</span>, amsgrad<span class="op">=</span><span class="va">False</span>,forEach<span class="op">=</span><span class="va">None</span>,maximize<span class="op">=</span><span class="va">False</span>,capturable<span class="op">=</span><span class="va">False</span>):</span>
+<span id="cb42-35"><a href="#cb42-35" aria-hidden="true" tabindex="-1"></a>        cbs <span class="op">=</span> fc.L(cbs)</span>
+<span id="cb42-36"><a href="#cb42-36" aria-hidden="true" tabindex="-1"></a>        <span class="co"># `add_cb` and `rm_cb` were added in lesson 18</span></span>
+<span id="cb42-37"><a href="#cb42-37" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> cb <span class="kw">in</span> cbs: <span class="va">self</span>.cbs.append(cb)</span>
+<span id="cb42-38"><a href="#cb42-38" aria-hidden="true" tabindex="-1"></a>        <span class="cf">try</span>:</span>
+<span id="cb42-39"><a href="#cb42-39" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.n_epochs <span class="op">=</span> n_epochs</span>
+<span id="cb42-40"><a href="#cb42-40" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.epochs <span class="op">=</span> <span class="bu">range</span>(n_epochs)</span>
+<span id="cb42-41"><a href="#cb42-41" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> lr <span class="kw">is</span> <span class="va">None</span>: lr <span class="op">=</span> <span class="va">self</span>.lr</span>
+<span id="cb42-42"><a href="#cb42-42" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="va">self</span>.opt_func: <span class="va">self</span>.opt <span class="op">=</span> <span class="va">self</span>.opt_func(<span class="va">self</span>.model.parameters(), lr)</span>
+<span id="cb42-43"><a href="#cb42-43" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>._fit(train, valid)</span>
+<span id="cb42-44"><a href="#cb42-44" aria-hidden="true" tabindex="-1"></a>        <span class="cf">finally</span>:</span>
+<span id="cb42-45"><a href="#cb42-45" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> cb <span class="kw">in</span> cbs: <span class="va">self</span>.cbs.remove(cb)</span>
+<span id="cb42-46"><a href="#cb42-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-47"><a href="#cb42-47" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__getattr__</span>(<span class="va">self</span>, name):</span>
+<span id="cb42-48"><a href="#cb42-48" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> name <span class="kw">in</span> (<span class="st">'predict'</span>,<span class="st">'get_loss'</span>,<span class="st">'backward'</span>,<span class="st">'step'</span>,<span class="st">'zero_grad'</span>): <span class="cf">return</span> partial(<span class="va">self</span>.callback, name)</span>
+<span id="cb42-49"><a href="#cb42-49" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">AttributeError</span>(name)</span>
+<span id="cb42-50"><a href="#cb42-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-51"><a href="#cb42-51" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> callback(<span class="va">self</span>, method_nm): run_cbs(<span class="va">self</span>.cbs, method_nm, <span class="va">self</span>)</span>
+<span id="cb42-52"><a href="#cb42-52" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb42-53"><a href="#cb42-53" aria-hidden="true" tabindex="-1"></a>    <span class="at">@property</span></span>
+<span id="cb42-54"><a href="#cb42-54" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> training(<span class="va">self</span>): <span class="cf">return</span> <span class="va">self</span>.model.training</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="80ba338b-672d-4140-882b-24d3b72b6370" class="cell" data-execution_count="19">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> init_ddpm(model):</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> o <span class="kw">in</span> model.downs:</span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> p <span class="kw">in</span> o.resnets: p.conv2[<span class="op">-</span><span class="dv">1</span>].weight.data.zero_()</span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> o <span class="kw">in</span> model.ups:</span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> p <span class="kw">in</span> o.resnets: p.conv2[<span class="op">-</span><span class="dv">1</span>].weight.data.zero_()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Callback to save the model checkpoints as it trains.</p>
+<div id="259fcebd-0b03-4312-a241-4c98b731f362" class="cell" data-execution_count="41">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SaveModelCallback(Callback):</span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, device<span class="op">=</span>def_device): fc.store_attr()</span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> after_epoch(<span class="va">self</span>, learn):</span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (learn.epoch <span class="op">+</span> <span class="dv">1</span>) <span class="op">%</span> <span class="dv">4</span> <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(learn.n_epochs):</span>
+<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a>                    save_path <span class="op">=</span> <span class="ss">f"models/church_mseonly</span><span class="sc">{</span>learn<span class="sc">.</span>epoch<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a>                    torch.save({<span class="st">'epoch'</span>: i<span class="op">+</span><span class="dv">1</span>,<span class="st">'model_state_dict'</span>: learn.model.state_dict(),<span class="st">'optimizer_state_dict'</span>: learn.opt.state_dict(),}, save_path)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cbfda39b-1618-4d11-9849-98794c65ac91" class="cell" data-execution_count="42">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>SaveModelCB <span class="op">=</span> SaveModelCallback()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="d967c41a-7312-4dc2-b144-ef0ad3a588c8" class="cell" data-execution_count="26">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>lr <span class="op">=</span> <span class="fl">3e-3</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>epochs <span class="op">=</span> <span class="dv">30</span></span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>opt_func <span class="op">=</span> partial(optim.AdamW, eps<span class="op">=</span><span class="fl">1e-5</span>)</span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>tmax <span class="op">=</span> epochs <span class="op">*</span> <span class="bu">len</span>(dls.train)</span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>sched <span class="op">=</span> partial(lr_scheduler.OneCycleLR, max_lr<span class="op">=</span>lr, total_steps<span class="op">=</span>tmax)</span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>cbs <span class="op">=</span> [DeviceCB(), ProgressCB(plot<span class="op">=</span><span class="va">True</span>), MetricsCB(), BatchSchedCB(sched), MixedPrecision(),SaveModelCB]</span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> EmbUNetModel(in_channels<span class="op">=</span><span class="dv">4</span>, out_channels<span class="op">=</span><span class="dv">4</span>, nfs<span class="op">=</span>(<span class="dv">128</span>, <span class="dv">256</span>, <span class="dv">512</span>, <span class="dv">768</span>), num_layers<span class="op">=</span><span class="dv">2</span>,</span>
+<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a>                     attn_start<span class="op">=</span><span class="dv">1</span>, attn_chans<span class="op">=</span><span class="dv">16</span>)</span>
+<span id="cb46-9"><a href="#cb46-9" aria-hidden="true" tabindex="-1"></a>init_ddpm(model)</span>
+<span id="cb46-10"><a href="#cb46-10" aria-hidden="true" tabindex="-1"></a>learn <span class="op">=</span> Learner(model, dls, nn.MSELoss(), lr<span class="op">=</span>lr, cbs<span class="op">=</span>cbs, opt_func<span class="op">=</span>opt_func)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="51c3c7b6-6747-4444-93a1-c4122e5c936c" class="cell">
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>learn.fit(eps<span class="op">=</span><span class="fl">1e-5</span>,n_epochs<span class="op">=</span>epochs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    progress:not([value]), progress:not([value])::-webkit-progress-bar {
+        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style>
+</div>
+<div class="cell-output cell-output-display">
+
+    <div>
+      <progress value="11" class="" max="30" style="width:300px; height:20px; vertical-align: middle;"></progress>
+      36.67% [11/30 1:26:03&lt;2:28:38]
+    </div>
+    
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">loss</th>
+<th data-quarto-table-cell-role="th">epoch</th>
+<th data-quarto-table-cell-role="th">train</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0.320</td>
+<td>0</td>
+<td>train</td>
+</tr>
+<tr class="even">
+<td>0.297</td>
+<td>0</td>
+<td>eval</td>
+</tr>
+<tr class="odd">
+<td>0.288</td>
+<td>1</td>
+<td>train</td>
+</tr>
+<tr class="even">
+<td>0.282</td>
+<td>1</td>
+<td>eval</td>
+</tr>
+<tr class="odd">
+<td>0.280</td>
+<td>2</td>
+<td>train</td>
+</tr>
+<tr class="even">
+<td>0.280</td>
+<td>2</td>
+<td>eval</td>
+</tr>
+<tr class="odd">
+<td>0.275</td>
+<td>3</td>
+<td>train</td>
+</tr>
+<tr class="even">
+<td>0.274</td>
+<td>3</td>
+<td>eval</td>
+</tr>
+<tr class="odd">
+<td>0.271</td>
+<td>4</td>
+<td>train</td>
+</tr>
+<tr class="even">
+<td>0.273</td>
+<td>4</td>
+<td>eval</td>
+</tr>
+<tr class="odd">
+<td>0.269</td>
+<td>5</td>
+<td>train</td>
+</tr>
+<tr class="even">
+<td>0.265</td>
+<td>5</td>
+<td>eval</td>
+</tr>
+<tr class="odd">
+<td>0.268</td>
+<td>6</td>
+<td>train</td>
+</tr>
+<tr class="even">
+<td>0.275</td>
+<td>6</td>
+<td>eval</td>
+</tr>
+<tr class="odd">
+<td>0.266</td>
+<td>7</td>
+<td>train</td>
+</tr>
+<tr class="even">
+<td>0.267</td>
+<td>7</td>
+<td>eval</td>
+</tr>
+<tr class="odd">
+<td>0.264</td>
+<td>8</td>
+<td>train</td>
+</tr>
+<tr class="even">
+<td>0.262</td>
+<td>8</td>
+<td>eval</td>
+</tr>
+<tr class="odd">
+<td>0.262</td>
+<td>9</td>
+<td>train</td>
+</tr>
+<tr class="even">
+<td>0.262</td>
+<td>9</td>
+<td>eval</td>
+</tr>
+<tr class="odd">
+<td>0.263</td>
+<td>10</td>
+<td>train</td>
+</tr>
+<tr class="even">
+<td>0.266</td>
+<td>10</td>
+<td>eval</td>
+</tr>
+</tbody>
+</table>
+<p>
+
+    </p><div>
+      <progress value="888" class="" max="888" style="width:300px; height:20px; vertical-align: middle;"></progress>
+      100.00% [888/888 05:16&lt;00:00 0.257]
+    </div>
+    
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-44-output-3.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<div id="23b12c54-c297-47eb-80bd-71821c39b4aa" class="cell" data-execution_count="43">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>checkpoint <span class="op">=</span> torch.load(<span class="st">"models/church_mseonly"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="95a0536d-9841-4146-8cb0-bb3350627704" class="cell" data-execution_count="44">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>lr <span class="op">=</span> checkpoint[<span class="st">'optimizer_state_dict'</span>][<span class="st">'param_groups'</span>][<span class="dv">0</span>][<span class="st">'lr'</span>]</span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>betas <span class="op">=</span> checkpoint[<span class="st">'optimizer_state_dict'</span>][<span class="st">'param_groups'</span>][<span class="dv">0</span>][<span class="st">'betas'</span>]</span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>eps <span class="op">=</span> checkpoint[<span class="st">'optimizer_state_dict'</span>][<span class="st">'param_groups'</span>][<span class="dv">0</span>][<span class="st">'eps'</span>]</span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a>weight_decay <span class="op">=</span> checkpoint[<span class="st">'optimizer_state_dict'</span>][<span class="st">'param_groups'</span>][<span class="dv">0</span>][<span class="st">'weight_decay'</span>]</span>
+<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a>amsgrad <span class="op">=</span> checkpoint[<span class="st">'optimizer_state_dict'</span>][<span class="st">'param_groups'</span>][<span class="dv">0</span>][<span class="st">'amsgrad'</span>]</span>
+<span id="cb49-6"><a href="#cb49-6" aria-hidden="true" tabindex="-1"></a>foreach <span class="op">=</span> checkpoint[<span class="st">'optimizer_state_dict'</span>][<span class="st">'param_groups'</span>][<span class="dv">0</span>][<span class="st">'foreach'</span>]</span>
+<span id="cb49-7"><a href="#cb49-7" aria-hidden="true" tabindex="-1"></a>maximize <span class="op">=</span> checkpoint[<span class="st">'optimizer_state_dict'</span>][<span class="st">'param_groups'</span>][<span class="dv">0</span>][<span class="st">'maximize'</span>]</span>
+<span id="cb49-8"><a href="#cb49-8" aria-hidden="true" tabindex="-1"></a>capturable <span class="op">=</span> checkpoint[<span class="st">'optimizer_state_dict'</span>][<span class="st">'param_groups'</span>][<span class="dv">0</span>][<span class="st">'capturable'</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="b6903ef8-7265-4b2d-ae06-b2aa294b8a53" class="cell" data-execution_count="27">
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> EmbUNetModel(in_channels<span class="op">=</span><span class="dv">4</span>, out_channels<span class="op">=</span><span class="dv">4</span>, nfs<span class="op">=</span>(<span class="dv">128</span>, <span class="dv">256</span>, <span class="dv">512</span>, <span class="dv">768</span>), num_layers<span class="op">=</span><span class="dv">2</span>,</span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>                     attn_start<span class="op">=</span><span class="dv">1</span>, attn_chans<span class="op">=</span><span class="dv">16</span>)</span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>model.load_state_dict(checkpoint[<span class="st">'model_state_dict'</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="27">
+<pre><code>&lt;All keys matched successfully&gt;</code></pre>
+</div>
+</div>
+<div id="365a70ea-6b63-4108-8353-4c5c1816f577" class="cell" data-execution_count="32">
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>epochs<span class="op">=</span><span class="dv">19</span></span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>opt_func <span class="op">=</span> partial(optim.AdamW, eps<span class="op">=</span><span class="fl">1e-5</span>)</span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>tmax <span class="op">=</span> epochs <span class="op">*</span> <span class="bu">len</span>(dls.train)</span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a>sched <span class="op">=</span> partial(lr_scheduler.OneCycleLR, max_lr<span class="op">=</span>lr, total_steps<span class="op">=</span>tmax)</span>
+<span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a>cbs <span class="op">=</span> [DeviceCB(), ProgressCB(plot<span class="op">=</span><span class="va">True</span>), MetricsCB(), BatchSchedCB(sched), MixedPrecision(),SaveModelCB]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="f0d32b84-6d97-4302-9f43-f97275e55369" class="cell" data-execution_count="33">
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>learn <span class="op">=</span> Learner(model, dls, nn.MSELoss(), lr<span class="op">=</span>lr, cbs<span class="op">=</span>cbs, opt_func<span class="op">=</span>opt_func)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="c06b3d9d-2bdb-49ff-86b4-0f37546fd475" class="cell" data-execution_count="34">
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>learn.fit(betas<span class="op">=</span>betas,eps<span class="op">=</span>eps,weight_decay<span class="op">=</span>weight_decay,n_epochs<span class="op">=</span>epochs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    progress:not([value]), progress:not([value])::-webkit-progress-bar {
+        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style>
+</div>
+<div class="cell-output cell-output-display">
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">loss</th>
+<th data-quarto-table-cell-role="th">epoch</th>
+<th data-quarto-table-cell-role="th">train</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0.250</td>
+<td>0</td>
+<td>train</td>
+</tr>
+<tr class="even">
+<td>0.250</td>
+<td>0</td>
+<td>eval</td>
+</tr>
+<tr class="odd">
+<td>0.251</td>
+<td>1</td>
+<td>train</td>
+</tr>
+<tr class="even">
+<td>0.245</td>
+<td>1</td>
+<td>eval</td>
+</tr>
+<tr class="odd">
+<td>0.250</td>
+<td>2</td>
+<td>train</td>
+</tr>
+<tr class="even">
+<td>0.252</td>
+<td>2</td>
+<td>eval</td>
+</tr>
+<tr class="odd">
+<td>0.252</td>
+<td>3</td>
+<td>train</td>
+</tr>
+<tr class="even">
+<td>0.247</td>
+<td>3</td>
+<td>eval</td>
+</tr>
+<tr class="odd">
+<td>0.251</td>
+<td>4</td>
+<td>train</td>
+</tr>
+<tr class="even">
+<td>0.252</td>
+<td>4</td>
+<td>eval</td>
+</tr>
+<tr class="odd">
+<td>0.251</td>
+<td>5</td>
+<td>train</td>
+</tr>
+<tr class="even">
+<td>0.253</td>
+<td>5</td>
+<td>eval</td>
+</tr>
+<tr class="odd">
+<td>0.251</td>
+<td>6</td>
+<td>train</td>
+</tr>
+<tr class="even">
+<td>0.250</td>
+<td>6</td>
+<td>eval</td>
+</tr>
+<tr class="odd">
+<td>0.250</td>
+<td>7</td>
+<td>train</td>
+</tr>
+<tr class="even">
+<td>0.250</td>
+<td>7</td>
+<td>eval</td>
+</tr>
+<tr class="odd">
+<td>0.252</td>
+<td>8</td>
+<td>train</td>
+</tr>
+<tr class="even">
+<td>0.250</td>
+<td>8</td>
+<td>eval</td>
+</tr>
+<tr class="odd">
+<td>0.251</td>
+<td>9</td>
+<td>train</td>
+</tr>
+<tr class="even">
+<td>0.252</td>
+<td>9</td>
+<td>eval</td>
+</tr>
+<tr class="odd">
+<td>0.250</td>
+<td>10</td>
+<td>train</td>
+</tr>
+<tr class="even">
+<td>0.250</td>
+<td>10</td>
+<td>eval</td>
+</tr>
+<tr class="odd">
+<td>0.250</td>
+<td>11</td>
+<td>train</td>
+</tr>
+<tr class="even">
+<td>0.246</td>
+<td>11</td>
+<td>eval</td>
+</tr>
+<tr class="odd">
+<td>0.250</td>
+<td>12</td>
+<td>train</td>
+</tr>
+<tr class="even">
+<td>0.252</td>
+<td>12</td>
+<td>eval</td>
+</tr>
+<tr class="odd">
+<td>0.250</td>
+<td>13</td>
+<td>train</td>
+</tr>
+<tr class="even">
+<td>0.251</td>
+<td>13</td>
+<td>eval</td>
+</tr>
+<tr class="odd">
+<td>0.251</td>
+<td>14</td>
+<td>train</td>
+</tr>
+<tr class="even">
+<td>0.250</td>
+<td>14</td>
+<td>eval</td>
+</tr>
+<tr class="odd">
+<td>0.251</td>
+<td>15</td>
+<td>train</td>
+</tr>
+<tr class="even">
+<td>0.252</td>
+<td>15</td>
+<td>eval</td>
+</tr>
+<tr class="odd">
+<td>0.251</td>
+<td>16</td>
+<td>train</td>
+</tr>
+<tr class="even">
+<td>0.251</td>
+<td>16</td>
+<td>eval</td>
+</tr>
+<tr class="odd">
+<td>0.252</td>
+<td>17</td>
+<td>train</td>
+</tr>
+<tr class="even">
+<td>0.252</td>
+<td>17</td>
+<td>eval</td>
+</tr>
+<tr class="odd">
+<td>0.253</td>
+<td>18</td>
+<td>train</td>
+</tr>
+<tr class="even">
+<td>0.251</td>
+<td>18</td>
+<td>eval</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-50-output-3.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<section id="analzying-the-loss" class="level2">
+<h2 class="anchored" data-anchor-id="analzying-the-loss">Analzying the loss</h2>
+<p>The model is trained for a total of 30 epochs. One thing that catches the eye is the loss value being high. If we do Simple diffusion in pixel space, loss is much lower(into 0.03 after 15 epochs).The reason for the loss being high is the complexity of pixel generation in the latent space. - Pixel space values directly represent the visual appearance of images and are highly correlated with features such as shapes and textures, where as latent space values provide a more interpretable and lower-dimensional representation of the underlying features and attributes of the data. - So generating image pixels are much easier as the nearby pixels will have similar values, the background might be same. When you try to generate latent pixels, the task is much more precise about what you want to generate and the error goes up as it is a much more difficult task for the model</p>
+</section>
+</section>
+<section id="sampling" class="level1">
+<h1>Sampling</h1>
+<p>Let’s look at the samples generated by our model. We use the DDIM sampler for our purpose.</p>
+<section id="ddim-sampler" class="level2">
+<h2 class="anchored" data-anchor-id="ddim-sampler">DDIM Sampler</h2>
+<!-- ![Alt text](Screenshot.png "Title text") -->
+<p><img src="Screenshot.png" alt="Alternative text" width="500" height="400"></p>
+<p>A sampling step in a diffusion model consists of: - predicting the direction in input space in which we should move to remove noise, or equivalently, to make the input more likely under the data distribution; - taking a small step in that direction.</p>
+<p>The above image shows the main equations that make up the DDIM paper. The σ(sigma) in the above equations is what makes this algorithm deterministic(and the difference from the probalistic predecessor DDPM). As we run this DDIM algorithm once, we get a direction towards the target(input) data distribution and take a step towards that direction.This direction is just an estimate of where our actual data distriution is and is not necessarily the absolute right direction. If we proceed to take a step in this direction and add some noise (as we do in the DDPM sampling algorithm, for example), we end up with <span class="math inline">\(x_{t-1}\)</span>,which corresponds to a slightly less noisy input image. The predicted direction now points to a smaller, “more specific” region of high likelihood, because some uncertainty was resolved by the previous sampling step. We add the noise back to this predicted direction so that the model can explore different regions of the data distribution.</p>
+<p>In DDIM, the σ(sigma) controls how muchh noise we add which makes the process deterministic. As we can see from the second equation in the above image, the “random noise” σ<span class="math inline">\(_{t}\)</span>ε<span class="math inline">\(_{t}\)</span> is added back. If σ is zero the algorithm becomes completely deterministic and if σ is 1 it is just DDPM. Despite the stochastic nature of adding noise during sampling, the overall sampling process in DDIM can still be considered deterministic in the sense that given the same input (noisy observation) and the same diffusion parameters, the output (sampled image) will be consistent and reproducible.</p>
+<div id="a0a256f4-d6c6-48ff-bd29-2eb6537f1c9d" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>checkpoint <span class="op">=</span> torch.load(<span class="st">"models/church_mseonly"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="b5dd010d-e70a-4065-b1bf-7ceec749834e" class="cell" data-execution_count="25">
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> EmbUNetModel(in_channels<span class="op">=</span><span class="dv">4</span>, out_channels<span class="op">=</span><span class="dv">4</span>, nfs<span class="op">=</span>(<span class="dv">128</span>, <span class="dv">256</span>, <span class="dv">512</span>, <span class="dv">768</span>), num_layers<span class="op">=</span><span class="dv">2</span>,</span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>                     attn_start<span class="op">=</span><span class="dv">1</span>, attn_chans<span class="op">=</span><span class="dv">16</span>)</span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a>model.load_state_dict(checkpoint[<span class="st">'model_state_dict'</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="25">
+<pre><code>&lt;All keys matched successfully&gt;</code></pre>
+</div>
+</div>
+<div id="90dbd9a3-8f46-4859-9fdb-1accb10ed3fe" class="cell" data-execution_count="26">
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> model.cuda() </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="e205afaf-8329-4dc5-bbd4-6557887c73fe" class="cell" data-execution_count="27">
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>sz <span class="op">=</span> (<span class="dv">16</span>,<span class="dv">4</span>,<span class="dv">32</span>,<span class="dv">32</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="84a7dc89-3737-4949-a719-96f7e2bcfb46" class="cell" data-execution_count="61">
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> model.cuda()</span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a><span class="co"># set_seed(42)</span></span>
+<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a>preds <span class="op">=</span> sample(ddim_step, model, sz, steps<span class="op">=</span><span class="dv">100</span>, eta<span class="op">=</span><span class="fl">1.</span>, clamp<span class="op">=</span><span class="va">False</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    progress:not([value]), progress:not([value])::-webkit-progress-bar {
+        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style>
+</div>
+<div class="cell-output cell-output-display">
+
+    <div>
+      <progress value="100" class="" max="100" style="width:300px; height:20px; vertical-align: middle;"></progress>
+      100.00% [100/100 00:02&lt;00:00]
+    </div>
+    
+</div>
+</div>
+<div id="bc090cc5-9dae-45c4-b6e0-d715e1964258" class="cell" data-execution_count="62">
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a>s <span class="op">=</span> preds[<span class="op">-</span><span class="dv">1</span>]<span class="op">*</span><span class="dv">5</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="951cfcb7-9d35-404e-ad0f-62da7008d394" class="cell" data-execution_count="63">
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> torch.no_grad(): pd <span class="op">=</span> to_cpu(vae.decode(s.cuda()))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The samples generated were able to capture the nuances of the scene including the main Church, the background and foreground settings. In some of the generated samples it was able to capture details of humans,or human crowds in the foreground. This is quite remarkable for a model trained just for 2-3 hours on a A1000 gpu card from scratch.</p>
+<div id="738ff66d-5df6-4ded-91c2-e6d3b9a03506" class="cell" data-execution_count="64">
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a>show_images(pd[<span class="st">'sample'</span>][:<span class="dv">16</span>].clamp(<span class="dv">0</span>,<span class="dv">1</span>), imsize<span class="op">=</span><span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-58-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>### Humans in the foreground</p>
+<p>Let’s look at this particular sample, where we can see the entire scene of a Church in front of a lake, where boat like structures, flowers and humans on the edge of the boat on the land seem to appear. We can see what looks like a crowd of few people, though the feature details seem to be missing. Nevertheless, the amount of object detail it has captured in the sampling is a huge positive.</p>
+<div id="fdb4639e-2716-45c6-8a4a-dfc7f4236e0a" class="cell" data-execution_count="68">
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>show_images(pd[<span class="st">'sample'</span>][<span class="dv">9</span>:<span class="dv">10</span>].clamp(<span class="dv">0</span>,<span class="dv">1</span>), imsize<span class="op">=</span><span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-59-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<div id="0d89afb2-483e-48e2-a1bd-3f0f2aa31401" class="cell" data-execution_count="31">
+<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a>show_images(pd[<span class="st">'sample'</span>][:<span class="dv">16</span>].clamp(<span class="dv">0</span>,<span class="dv">1</span>), imsize<span class="op">=</span><span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-60-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<div id="397b1a9b-eeb8-432b-a99f-06dc4e890aea" class="cell" data-execution_count="44">
+<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>show_images(pd[<span class="st">'sample'</span>][:<span class="dv">45</span>].clamp(<span class="dv">0</span>,<span class="dv">1</span>), imsize<span class="op">=</span><span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-61-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="perceptual-loss" class="level1">
+<h1>Perceptual Loss</h1>
+<p>Let’s now get into adding a Perceptual image latent loss function to our model. To add the Perceptual Loss function we train our own Imagenet Classifier.</p>
+<p><strong><em>Training Imagenet Classifier on Encoded Latents</em></strong></p>
+<ul>
+<li>Firstly the entire of ImageNet is encoded into their latent representations using a VAE.</li>
+<li>A classification model is then trained on the entire ImageNet training set.</li>
+<li>The head from the classification model is removed and the model’s activations are used as part of the loss function to train a diffusion U-Net model for Latent Diffusion.</li>
+</ul>
+<p>A model is created consisting of ResBlocks with dropout to be trained to classify the latent representations of the ImageNet images. The model was trained to 65.7% accuracy for ImageNet classification over 30 epochs with data augmentation, pixel padding them cropping randomly back to 32x32 latent pixels and using Random Erase</p>
+<!-- ![Alt text](Screenshot.png "Title text") -->
+<p><img src="Classifier.jpg" alt="Alternative text" width="500" height="400"></p>
+<div id="cf0697de-8142-488c-91e9-934e9c7243b3" class="cell" data-execution_count="22">
+<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a><span class="bu">len</span>(dls.train)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="22">
+<pre><code>888</code></pre>
+</div>
+</div>
+<div id="b5553db7-1d73-43e5-80a6-7fb986d363ed" class="cell" data-execution_count="92">
+<div class="sourceCode cell-code" id="cb69"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> init_ddpm(model):</span>
+<span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> o <span class="kw">in</span> model.downs:</span>
+<span id="cb69-3"><a href="#cb69-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> p <span class="kw">in</span> o.resnets: p.conv2[<span class="op">-</span><span class="dv">1</span>].weight.data.zero_()</span>
+<span id="cb69-4"><a href="#cb69-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb69-5"><a href="#cb69-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> o <span class="kw">in</span> model.ups:</span>
+<span id="cb69-6"><a href="#cb69-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> p <span class="kw">in</span> o.resnets: p.conv2[<span class="op">-</span><span class="dv">1</span>].weight.data.zero_()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="fccb8067-6d74-4b64-b726-db0e9d5a8df9" class="cell" data-execution_count="93">
+<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a>act_gr <span class="op">=</span> partial(GeneralRelu, leak<span class="op">=</span><span class="fl">0.1</span>, sub<span class="op">=</span><span class="fl">0.4</span>)</span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> conv(ni, nf, ks<span class="op">=</span><span class="dv">3</span>, stride<span class="op">=</span><span class="dv">1</span>, act<span class="op">=</span>nn.ReLU, norm<span class="op">=</span><span class="va">None</span>, bias<span class="op">=</span><span class="va">True</span>):</span>
+<span id="cb70-3"><a href="#cb70-3" aria-hidden="true" tabindex="-1"></a>    layers <span class="op">=</span> []</span>
+<span id="cb70-4"><a href="#cb70-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> norm: layers.append(norm(ni))</span>
+<span id="cb70-5"><a href="#cb70-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> act : layers.append(act())</span>
+<span id="cb70-6"><a href="#cb70-6" aria-hidden="true" tabindex="-1"></a>    layers.append(nn.Conv2d(ni, nf, stride<span class="op">=</span>stride, kernel_size<span class="op">=</span>ks, padding<span class="op">=</span>ks<span class="op">//</span><span class="dv">2</span>, bias<span class="op">=</span>bias))</span>
+<span id="cb70-7"><a href="#cb70-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> nn.Sequential(<span class="op">*</span>layers)</span>
+<span id="cb70-8"><a href="#cb70-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb70-9"><a href="#cb70-9" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> _conv_block(ni, nf, stride, act<span class="op">=</span>act_gr, norm<span class="op">=</span><span class="va">None</span>, ks<span class="op">=</span><span class="dv">3</span>):</span>
+<span id="cb70-10"><a href="#cb70-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> nn.Sequential(conv(ni, nf, stride<span class="op">=</span><span class="dv">1</span>     , act<span class="op">=</span>act, norm<span class="op">=</span>norm, ks<span class="op">=</span>ks),</span>
+<span id="cb70-11"><a href="#cb70-11" aria-hidden="true" tabindex="-1"></a>                         conv(nf, nf, stride<span class="op">=</span>stride, act<span class="op">=</span>act, norm<span class="op">=</span>norm, ks<span class="op">=</span>ks))</span>
+<span id="cb70-12"><a href="#cb70-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb70-13"><a href="#cb70-13" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> ResBlock(nn.Module):</span>
+<span id="cb70-14"><a href="#cb70-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, ni, nf, stride<span class="op">=</span><span class="dv">1</span>, ks<span class="op">=</span><span class="dv">3</span>, act<span class="op">=</span>act_gr, norm<span class="op">=</span><span class="va">None</span>):</span>
+<span id="cb70-15"><a href="#cb70-15" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb70-16"><a href="#cb70-16" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.convs <span class="op">=</span> _conv_block(ni, nf, stride, act<span class="op">=</span>act, ks<span class="op">=</span>ks, norm<span class="op">=</span>norm)</span>
+<span id="cb70-17"><a href="#cb70-17" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.idconv <span class="op">=</span> fc.noop <span class="cf">if</span> ni<span class="op">==</span>nf <span class="cf">else</span> conv(ni, nf, ks<span class="op">=</span><span class="dv">1</span>, stride<span class="op">=</span><span class="dv">1</span>, act<span class="op">=</span><span class="va">None</span>, norm<span class="op">=</span>norm)</span>
+<span id="cb70-18"><a href="#cb70-18" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.pool <span class="op">=</span> fc.noop <span class="cf">if</span> stride<span class="op">==</span><span class="dv">1</span> <span class="cf">else</span> nn.AvgPool2d(<span class="dv">2</span>, ceil_mode<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb70-19"><a href="#cb70-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb70-20"><a href="#cb70-20" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, x): <span class="cf">return</span> <span class="va">self</span>.convs(x) <span class="op">+</span> <span class="va">self</span>.idconv(<span class="va">self</span>.pool(x))</span>
+<span id="cb70-21"><a href="#cb70-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb70-22"><a href="#cb70-22" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> res_blocks(n_bk, ni, nf, stride<span class="op">=</span><span class="dv">1</span>, ks<span class="op">=</span><span class="dv">3</span>, act<span class="op">=</span>act_gr, norm<span class="op">=</span><span class="va">None</span>):</span>
+<span id="cb70-23"><a href="#cb70-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> nn.Sequential(<span class="op">*</span>[</span>
+<span id="cb70-24"><a href="#cb70-24" aria-hidden="true" tabindex="-1"></a>        ResBlock(ni <span class="cf">if</span> i<span class="op">==</span><span class="dv">0</span> <span class="cf">else</span> nf, nf, stride<span class="op">=</span>stride <span class="cf">if</span> i<span class="op">==</span>n_bk<span class="op">-</span><span class="dv">1</span> <span class="cf">else</span> <span class="dv">1</span>, ks<span class="op">=</span>ks, act<span class="op">=</span>act, norm<span class="op">=</span>norm)</span>
+<span id="cb70-25"><a href="#cb70-25" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n_bk)])</span>
+<span id="cb70-26"><a href="#cb70-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb70-27"><a href="#cb70-27" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_dropmodel(nfs, nbks, act<span class="op">=</span>act_gr, norm<span class="op">=</span>nn.BatchNorm2d, drop<span class="op">=</span><span class="fl">0.2</span>):</span>
+<span id="cb70-28"><a href="#cb70-28" aria-hidden="true" tabindex="-1"></a>    layers <span class="op">=</span> [nn.Conv2d(<span class="dv">4</span>, nfs[<span class="dv">0</span>], <span class="dv">5</span>, padding<span class="op">=</span><span class="dv">2</span>)]</span>
+<span id="cb70-29"><a href="#cb70-29" aria-hidden="true" tabindex="-1"></a>    layers <span class="op">+=</span> [res_blocks(nbks[i], nfs[i], nfs[i<span class="op">+</span><span class="dv">1</span>], act<span class="op">=</span>act, norm<span class="op">=</span>norm, stride<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb70-30"><a href="#cb70-30" aria-hidden="true" tabindex="-1"></a>               <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(nfs)<span class="op">-</span><span class="dv">1</span>)]</span>
+<span id="cb70-31"><a href="#cb70-31" aria-hidden="true" tabindex="-1"></a>    layers <span class="op">+=</span> [act_gr(), norm(nfs[<span class="op">-</span><span class="dv">1</span>]), nn.AdaptiveAvgPool2d(<span class="dv">1</span>), nn.Flatten(), nn.Dropout(drop)]</span>
+<span id="cb70-32"><a href="#cb70-32" aria-hidden="true" tabindex="-1"></a>    layers <span class="op">+=</span> [nn.Linear(nfs[<span class="op">-</span><span class="dv">1</span>], <span class="dv">1000</span>, bias<span class="op">=</span><span class="va">False</span>), nn.BatchNorm1d(<span class="dv">1000</span>)]</span>
+<span id="cb70-33"><a href="#cb70-33" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> nn.Sequential(<span class="op">*</span>layers).<span class="bu">apply</span>(iw)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="2e1d9e10-2caf-463d-acb4-ec1ef095c314" class="cell" data-execution_count="94">
+<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="co">#latent classifier model 65.8% accuracte model trained on on imageNet</span></span>
+<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a>cmodel <span class="op">=</span> torch.load(<span class="st">'models/imgnet-latents'</span>).cuda()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="e3b0981c-209a-4cfa-ba4d-8c6f363c188c" class="cell" data-execution_count="95">
+<div class="sourceCode cell-code" id="cb72"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="co">#remove the last 4 layers of the classifier model</span></span>
+<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>,<span class="bu">len</span>(cmodel)): <span class="kw">del</span>(cmodel[<span class="dv">4</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="c2fa034f-7876-4d00-b2b7-16d543c15672" class="cell" data-execution_count="106">
+<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a><span class="co">#MSE &amp; latent perceptual loss</span></span>
+<span id="cb73-2"><a href="#cb73-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> comb_loss(inp, tgt):</span>
+<span id="cb73-3"><a href="#cb73-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> torch.autocast(<span class="st">'cuda'</span>):</span>
+<span id="cb73-4"><a href="#cb73-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">with</span> torch.no_grad(): tgt_feat <span class="op">=</span> cmodel(tgt).<span class="bu">float</span>()</span>
+<span id="cb73-5"><a href="#cb73-5" aria-hidden="true" tabindex="-1"></a>        inp_feat <span class="op">=</span> cmodel(inp).<span class="bu">float</span>()</span>
+<span id="cb73-6"><a href="#cb73-6" aria-hidden="true" tabindex="-1"></a>    feat_loss <span class="op">=</span> F.mse_loss(inp_feat, tgt_feat)</span>
+<span id="cb73-7"><a href="#cb73-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> F.mse_loss(inp,tgt) <span class="op">+</span> feat_loss<span class="op">*</span><span class="fl">0.01</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="a363831d-3d55-4e77-bcf3-fd48ffe0b659" class="cell" data-execution_count="107">
+<div class="sourceCode cell-code" id="cb74"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="co"># PATH = f"models/church_perceptual"</span></span>
+<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SaveModelCallback(Callback):</span>
+<span id="cb74-3"><a href="#cb74-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, device<span class="op">=</span>def_device): fc.store_attr()</span>
+<span id="cb74-4"><a href="#cb74-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> after_epoch(<span class="va">self</span>, learn):</span>
+<span id="cb74-5"><a href="#cb74-5" aria-hidden="true" tabindex="-1"></a>         <span class="cf">if</span> (learn.epoch <span class="op">+</span> <span class="dv">1</span>) <span class="op">%</span> <span class="dv">4</span> <span class="op">==</span> <span class="dv">0</span>:  <span class="co"># Check if current epoch is a multiple of 4</span></span>
+<span id="cb74-6"><a href="#cb74-6" aria-hidden="true" tabindex="-1"></a>            save_path <span class="op">=</span> <span class="ss">f"models/church_perceptual_new</span><span class="sc">{</span>learn<span class="sc">.</span>epoch<span class="op">+</span><span class="dv">1</span><span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb74-7"><a href="#cb74-7" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(learn.n_epochs):</span>
+<span id="cb74-8"><a href="#cb74-8" aria-hidden="true" tabindex="-1"></a>                    torch.save({<span class="st">'epoch'</span>: i<span class="op">+</span><span class="dv">1</span>,<span class="st">'model_state_dict'</span>: learn.model.state_dict(),<span class="st">'optimizer_state_dict'</span>: learn.opt.state_dict(),}, save_path)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="56969307-776b-4e92-9d94-248e02add685" class="cell" data-execution_count="108">
+<div class="sourceCode cell-code" id="cb75"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a>SaveModelCB <span class="op">=</span> SaveModelCallback()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="282fc7ff-d6dd-4615-b13a-8d6409d4cf54" class="cell" data-execution_count="109">
+<div class="sourceCode cell-code" id="cb76"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a>lr <span class="op">=</span> <span class="fl">1e-3</span></span>
+<span id="cb76-2"><a href="#cb76-2" aria-hidden="true" tabindex="-1"></a>epochs <span class="op">=</span> <span class="dv">30</span></span>
+<span id="cb76-3"><a href="#cb76-3" aria-hidden="true" tabindex="-1"></a>opt_func <span class="op">=</span> partial(optim.AdamW, eps<span class="op">=</span><span class="fl">1e-5</span>)</span>
+<span id="cb76-4"><a href="#cb76-4" aria-hidden="true" tabindex="-1"></a>tmax <span class="op">=</span> epochs <span class="op">*</span> <span class="bu">len</span>(dls.train)</span>
+<span id="cb76-5"><a href="#cb76-5" aria-hidden="true" tabindex="-1"></a>sched <span class="op">=</span> partial(lr_scheduler.OneCycleLR, max_lr<span class="op">=</span>lr, total_steps<span class="op">=</span>tmax)</span>
+<span id="cb76-6"><a href="#cb76-6" aria-hidden="true" tabindex="-1"></a>cbs <span class="op">=</span> [DeviceCB(), ProgressCB(plot<span class="op">=</span><span class="va">True</span>), MetricsCB(), BatchSchedCB(sched), MixedPrecision(),SaveModelCB]</span>
+<span id="cb76-7"><a href="#cb76-7" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> EmbUNetModel(in_channels<span class="op">=</span><span class="dv">4</span>, out_channels<span class="op">=</span><span class="dv">4</span>, nfs<span class="op">=</span>(<span class="dv">128</span>, <span class="dv">256</span>, <span class="dv">512</span>, <span class="dv">768</span>), num_layers<span class="op">=</span><span class="dv">2</span>,</span>
+<span id="cb76-8"><a href="#cb76-8" aria-hidden="true" tabindex="-1"></a>                     attn_start<span class="op">=</span><span class="dv">1</span>, attn_chans<span class="op">=</span><span class="dv">16</span>)</span>
+<span id="cb76-9"><a href="#cb76-9" aria-hidden="true" tabindex="-1"></a>init_ddpm(model)</span>
+<span id="cb76-10"><a href="#cb76-10" aria-hidden="true" tabindex="-1"></a>learn <span class="op">=</span> Learner(model, dls, comb_loss, lr<span class="op">=</span>lr, cbs<span class="op">=</span>cbs, opt_func<span class="op">=</span>opt_func)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="8d1d8ce3-44e6-4cc0-b8d3-003af0981253" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb77"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a>learn.fit(eps<span class="op">=</span><span class="fl">1e-5</span>,n_epochs<span class="op">=</span>epochs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="sampling-1" class="level1">
+<h1>Sampling</h1>
+<div id="dfd0d4bd-b416-40f5-865d-7d227ca5b45f" class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb78"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a>checkpoint <span class="op">=</span> torch.load(<span class="st">"models/church_perceptual44"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="6289d615-eadc-4f56-8fab-eed61c009ff5" class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb79"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> EmbUNetModel(in_channels<span class="op">=</span><span class="dv">4</span>, out_channels<span class="op">=</span><span class="dv">4</span>, nfs<span class="op">=</span>(<span class="dv">128</span>, <span class="dv">256</span>, <span class="dv">512</span>, <span class="dv">768</span>), num_layers<span class="op">=</span><span class="dv">2</span>,</span>
+<span id="cb79-2"><a href="#cb79-2" aria-hidden="true" tabindex="-1"></a>                     attn_start<span class="op">=</span><span class="dv">1</span>, attn_chans<span class="op">=</span><span class="dv">16</span>)</span>
+<span id="cb79-3"><a href="#cb79-3" aria-hidden="true" tabindex="-1"></a>model.load_state_dict(checkpoint[<span class="st">'model_state_dict'</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="11">
+<pre><code>&lt;All keys matched successfully&gt;</code></pre>
+</div>
+</div>
+<div id="3f8a58ed-f047-4387-afcb-b077b61bed61" class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb81"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> model.cuda()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="0e8da68c-d385-499e-915d-dee077083a90" class="cell" data-execution_count="33">
+<div class="sourceCode cell-code" id="cb82"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a>sz <span class="op">=</span> (<span class="dv">16</span>,<span class="dv">4</span>,<span class="dv">32</span>,<span class="dv">32</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="9726f19e-4228-4612-83c4-ae0b73a5d42c" class="cell" data-execution_count="46">
+<div class="sourceCode cell-code" id="cb83"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a>preds <span class="op">=</span> sample(ddim_step, model, sz, steps<span class="op">=</span><span class="dv">100</span>, eta<span class="op">=</span><span class="fl">1.</span>, clamp<span class="op">=</span><span class="va">False</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    progress:not([value]), progress:not([value])::-webkit-progress-bar {
+        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style>
+</div>
+<div class="cell-output cell-output-display">
+
+    <div>
+      <progress value="100" class="" max="100" style="width:300px; height:20px; vertical-align: middle;"></progress>
+      100.00% [100/100 00:02&lt;00:00]
+    </div>
+    
+</div>
+</div>
+<div id="7985c897-c923-475e-9456-7df1ae5fb7a7" class="cell" data-execution_count="47">
+<div class="sourceCode cell-code" id="cb84"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a>s <span class="op">=</span> preds[<span class="op">-</span><span class="dv">1</span>]<span class="op">*</span><span class="dv">5</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="246858ac-1375-4836-817f-39feed75fc23" class="cell" data-execution_count="48">
+<div class="sourceCode cell-code" id="cb85"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> torch.no_grad(): pd <span class="op">=</span> to_cpu(vae.decode(s.cuda()))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="55acf24f-825d-489c-af38-15c933c7abfd" class="cell" data-execution_count="62">
+<div class="sourceCode cell-code" id="cb86"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 44 EPOCHS</span></span>
+<span id="cb86-2"><a href="#cb86-2" aria-hidden="true" tabindex="-1"></a>show_images(pd[<span class="st">'sample'</span>][:<span class="dv">16</span>].clamp(<span class="dv">0</span>,<span class="dv">1</span>), imsize<span class="op">=</span><span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-79-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>It is hard to say that we have done better with this Perceptual loss diffusion model. Even though the entire scene of the images generated looks a bit like pencil drawing sketches, and not as real and close to our input distribution as the diffusion model trained with MSE loss was.One thing that stands out is that it’s still consistent and detailed with the church structures it has created. As the model used for perceptual loss was a classifer trained on Imagenet to predict different object classes, it still does well on the main object(i.e the Church itself). The temperature, color, background,foreground(etc) of the generated images are undercooked and not very convincing. Let’s have a look at one of the images closer below. You can see the brick detailing, broken edges which make a compelling church image.</p>
+<div id="10778a9a-38a7-490f-913b-629be08d8e6f" class="cell" data-execution_count="41">
+<div class="sourceCode cell-code" id="cb87"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 44 EPOCHS</span></span>
+<span id="cb87-2"><a href="#cb87-2" aria-hidden="true" tabindex="-1"></a>show_images(pd[<span class="st">'sample'</span>][<span class="dv">10</span>:<span class="dv">11</span>].clamp(<span class="dv">0</span>,<span class="dv">1</span>), imsize<span class="op">=</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/cell-80-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<p>Today, we generated Church images by training 2 diffusion models, one with MSE loss and the other with added perceptual loss. The pieces we scraped together to generate images and train these models were our very own. Considering the dataset we used was very small(for a generative model trained from scratch), and each of the model trained for just 3-4 hours on a 16Gb A1000 card, we got promising results.</p>
+<p>Some work has been come forward which uses the stable diffusion model itslef as the model to calculate perceptual loss on. The technique utilizes the diffusion model itself to generate meaningful perceptual loss.</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<script src="https://utteranc.es/client.js" repo="quarto-dev/quarto-web" issue-term="pathname" theme="github-light" crossorigin="anonymous" async="">
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

@@ -2,6 +2,7 @@
   {
     "listing": "/index.html",
     "items": [
+      "/posts/latent_diffusion/index.html",
       "/posts/nca/index.html"
     ]
   }
