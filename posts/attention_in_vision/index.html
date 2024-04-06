@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.4.549">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Sehajdeep Singh">
+<meta name="dcterms.date" content="2024-04-06">
+<meta name="description" content="Attention in Vision explained.">
+
+<title>Sehaj-notepad - Unpacking Attention &amp; Transformers in Vision - From Theory to Implementation</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed fullcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Sehaj-notepad</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/sehajsasan"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://twitter.com/sehajsasan"> <i class="bi bi-twitter" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/sehajdeeep-singh-3a54957a/"> <i class="bi bi-linkedin" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+          <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Unpacking Attention &amp; Transformers in Vision - From Theory to Implementation</h1>
+                  <div>
+        <div class="description">
+          Attention in Vision explained.
+        </div>
+      </div>
+                          <div class="quarto-categories">
+                <div class="quarto-category">AI</div>
+                <div class="quarto-category">Attention</div>
+                <div class="quarto-category">Transformers</div>
+                <div class="quarto-category">Vision</div>
+                <div class="quarto-category">pytorch</div>
+                <div class="quarto-category">jupyter</div>
+                <div class="quarto-category">code</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Sehajdeep Singh </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">April 6, 2024</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+
+<section id="unpacking-attention-transformers-in-vision-from-theory-to-implementation" class="level1">
+<h1>Unpacking Attention &amp; Transformers in Vision: From Theory to Implementation</h1>
+<p>Attention is the driving force behind the latest AI breakthroughs, pushing the boundaries of what’s possible in artificial intelligence. From ChatGPT to the feats of Stable diffusion, attention is the secret sauce behind these cutting-edge models. Today, we’re diving headfirst into the world of attention as used in vision. We’ll break down how it works, demystifying the ‘aha’ moment when machines learn to focus on what truly matters. Attention has been the peice which has accelerated the AI world in the recent past.We will understand each step of attention, draw out to get intuition of how it is possible to “attend” using the attention mechanism, write our attention blocks from scratch. Then we will move onto the Transformer architecture for Vision and implement the Vision Transformer (ViT). We will start with the naive application of self-attention to images that requires each pixel attends to every other pixel, then move onto Multi-head attention, and then finally go onto techniques like patching the input image as sequence when we move onto the ViT architecture.</p>
+<section id="naive-self-attention" class="level2">
+<h2 class="anchored" data-anchor-id="naive-self-attention">Naive Self-attention</h2>
+<p>Let’s say we have a cat image that is of shape = (height,width,channels). Now wouldn’t it be handy if each pixel(or few pixels and/or channels together) knew about what the other part of the image looks like. If a model is working with a cat image, and if the pixels around the ear had some information or context about how the pixels at the other parts of the image are, its job would be much easier. When we apply convolutions with kernels across images to find out the activations, this information is not captured and only the local neighbouring values are learnt to create a local activation for one small part of the image. Even with the CNN receptive field this information gets faded as the network gets deeper. With attention what we are trying to do is have the weighted average of all the pixels and each pixel value is updated to be the original value and this learned weighted average of all the other pixels at different parts of the image. Naive application of self-attention to images would require that each pixel attends to every other pixel.The standard Transformer receives as input a 1D sequence of token embeddings. We flatten out our input image into (h x w, channels) dimensions. In the cells below we create an input with batch size 64, 32 channels and 16X16 pixels map and reshape it to be (n_batch, h x w, channels)</p>
+<p><img src="flatten.PNG" alt="Alternative text" width="700" height="700"></p>
+<div id="8f925e9c-85b5-4cfc-a080-f7d50ce3f0f8" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>pip install <span class="op">-</span>Uqq git<span class="op">+</span>https:<span class="op">//</span>github.com<span class="op">/</span>fastai<span class="op">/</span>course22p2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cc4e3941-3f20-4d9e-88df-7581b5241a26" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span>capture</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>pip install accelerate</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="f797696c-16fb-4141-b3fa-8f7a67b8ac4a" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math,torch</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch <span class="im">import</span> nn</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> miniai.activations <span class="im">import</span> <span class="op">*</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch <span class="im">import</span> Tensor</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> einops.layers.torch <span class="im">import</span> Rearrange</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torchvision.datasets <span class="im">import</span> OxfordIIITPet</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> random <span class="im">import</span> random</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torchvision.transforms <span class="im">import</span> Resize, ToTensor</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torchvision.transforms.functional <span class="im">import</span> to_pil_image</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="50dc1bbb-6c2c-40f9-9563-e895da5e66ae" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="13796b1b-55e5-4be8-901e-2871938e942f" class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>set_seed(<span class="dv">42</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> torch.randn(<span class="dv">64</span>,<span class="dv">32</span>,<span class="dv">16</span>,<span class="dv">16</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="2a0219ce-48ce-4d0f-af84-52f4845a4463" class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> x.view(<span class="op">*</span>x.shape[:<span class="dv">2</span>], <span class="op">-</span><span class="dv">1</span>).transpose(<span class="dv">1</span>, <span class="dv">2</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>t.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="6">
+<pre><code>torch.Size([64, 256, 32])</code></pre>
+</div>
+</div>
+<section id="debunking-the-qkv-projections." class="level3">
+<h3 class="anchored" data-anchor-id="debunking-the-qkv-projections.">Debunking the “q”,“k”,“v” projections.</h3>
+<p>In the original “Attention is all you need” paper it is quoted as “an attention function can be described as mapping a query and a set of key-value pairs to an output, where the query, keys, values, and output are all vectors”. Describing it in terms of query and key-value pairs instantly makes me think of a mapping function between known vectors which is not true, as these vectors are initialised and learnt over time. Therefore, another term that is more intuitive for me to associate with q,k and v are projections. Each of the q,k and v are different projections of the input. Let’s see how these projections are created. We create 3 linear transformations with nn.Linear where in_features, out_features equal to the number of channels. The weight matrices of these 3 different transformations will be initialised randomly, and these weights(which are learnable parameters of nn.Linear) will be matrix multiplied by input which will give us the 3 different projections of the input.</p>
+<div id="09332f33-7ec2-49e6-84dc-8a8fc36c73a6" class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>ni <span class="op">=</span> <span class="dv">32</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>sk <span class="op">=</span> nn.Linear(ni, ni)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>sq <span class="op">=</span> nn.Linear(ni, ni)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>sv <span class="op">=</span> nn.Linear(ni, ni)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="42d87cbf-2534-4eff-97b8-4697b56d48b6" class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>k <span class="op">=</span> sk(t)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>q <span class="op">=</span> sq(t)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>v <span class="op">=</span> sv(t)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>k.shape,q.shape,v.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="8">
+<pre><code>(torch.Size([64, 256, 32]),
+ torch.Size([64, 256, 32]),
+ torch.Size([64, 256, 32]))</code></pre>
+</div>
+</div>
+<p>Let’s get into the details and visualise these Linear Transformation. The shapes of the various components are inp,t = [64,256,32] Linear layer,l = (in_features=32,out_features=32,b=True). So the weight matrix ‘w’ of the Linear layer nn.Linear is [32,32] matrix. out,(k,q,v) = [64,256,32]</p>
+<p><img src="linear_transform.png" alt="Alternative text" width="700" height="700"></p>
+<p>Next step is to take the dot product of the q and k projections. These projections (q,k) have value of each pixel across all the channels(32). So if we take the dot product of each pixel value across all channes with another pixel value across all channels, we will get the relationship between those 2 pixels(and eventually all of the pixels in the grid) or we will get to know how similar those pixels are. Let’s visualise this for better understanding.</p>
+<p><img src="qk.PNG" alt="Alternative text" width="700" height="700"></p>
+<p>We do the matrix product of q with the transpose of k. We see that as we fill up the resultant 256X256 matrix, we get the relationship or similarity between each of the pixels. If we look at the first row of q and first column of k.T (selected in red color) the first pixel across channels of q projection is multiplied with first pixel across channels of k projection to fill out “a” in the resultant matrix. Similarily, as we continue the dot product we get the similarity(or relationships) between all the pixels . Let’s fill out some values in the result matrix and see what is it actually doing. So to get a,b,c,d we do the dot product of - a - 1st pixel all channels (q) X 1st pixel all channles(k) - b - 1st pixel all channels(q) X 2nd pixel all channles(k) - d - 2nd pixel all channels(q) X 1st pixel all channles(k)</p>
+<p>Let’s go ahead and do the q@k.T</p>
+<div id="fdb3367c-a2f7-483d-9a34-1dc8b27970f2" class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>s <span class="op">=</span> (q<span class="op">@</span>k.transpose(<span class="dv">1</span>,<span class="dv">2</span>))</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>s.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="9">
+<pre><code>torch.Size([64, 256, 256])</code></pre>
+</div>
+</div>
+<p>Now, we will take this result “s” and do the matrix product with the v projection and the final output of the self attention block is the original input plus all the transformations we have done using q,k,v and other projections.</p>
+<div id="f635e8e8-45e7-4a76-93cb-2f4d5d21fd9c" class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>res <span class="op">=</span> s.softmax(dim<span class="op">=-</span><span class="dv">1</span>)<span class="op">@</span>v</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We take the softmax across each row so that the sum of each row of “s” is 1 and we have a weight for each pixel.</p>
+<div id="c01a159d-e42e-41f5-a139-8b4622fedf24" class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>res.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="11">
+<pre><code>torch.Size([64, 256, 32])</code></pre>
+</div>
+</div>
+<p>So now let’s write our own Self Attention class</p>
+<div id="d56c1263-ecc4-4d5d-af08-a86fc42a93fd" class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SelfAttention(nn.Module):</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, ni):</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.scale <span class="op">=</span> math.sqrt(ni)</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.norm <span class="op">=</span> nn.GroupNorm(<span class="dv">1</span>, ni)</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.q <span class="op">=</span> nn.Linear(ni, ni)</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.k <span class="op">=</span> nn.Linear(ni, ni)</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.v <span class="op">=</span> nn.Linear(ni, ni)</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.proj <span class="op">=</span> nn.Linear(ni, ni)</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, x):</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>        inp <span class="op">=</span> x</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>        n,c,h,w <span class="op">=</span> x.shape</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> <span class="va">self</span>.norm(x)</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> x.view(n, c, <span class="op">-</span><span class="dv">1</span>).transpose(<span class="dv">1</span>, <span class="dv">2</span>)</span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>        q <span class="op">=</span> <span class="va">self</span>.q(x)</span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>        k <span class="op">=</span> <span class="va">self</span>.k(x)</span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>        v <span class="op">=</span> <span class="va">self</span>.v(x)</span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>        s <span class="op">=</span> (q<span class="op">@</span>k.transpose(<span class="dv">1</span>,<span class="dv">2</span>))<span class="op">/</span><span class="va">self</span>.scale</span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> s.softmax(dim<span class="op">=-</span><span class="dv">1</span>)<span class="op">@</span>v</span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> <span class="va">self</span>.proj(x)</span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> x.transpose(<span class="dv">1</span>,<span class="dv">2</span>).reshape(n,c,h,w)</span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> x<span class="op">+</span>inp</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="4a82fd02-6755-4206-9487-8f702f68dae4" class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>sa <span class="op">=</span> SelfAttention(<span class="dv">32</span>)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>ra <span class="op">=</span> sa(x)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>ra.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="13">
+<pre><code>torch.Size([64, 32, 16, 16])</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="multihead-self-attention" class="level2">
+<h2 class="anchored" data-anchor-id="multihead-self-attention">MultiHead Self-Attention</h2>
+<p>Naive application of self-attention to images would require that each pixel attends to every other pixel. With quadratic cost in the number of pixels, this does not scale to realistic input sizes. So one method which is very intuitive is to group some channels together from different parts of the image. These groups of channels are called “heads”. Now each head would have few channels grouped together and these heads will carry information about different aspects of the image depending on what the channels in a particular group(or head) capture. For understanding purposes , we can assume one head has capured part of the image which has information about the temperature(brightness) of the image, another head has information about the regions that correspond to cat features like ears, eyes, nose, or tail and so on. - As compared to our naive self attention, we do the dot product between these heads or groups of channels - As we use softmax to sum a row and get weight for each pixel, if we just use pixel self attention, the attention might be biased to just one large value as the softmax of that large value would be enormous compared to other values ( as e^x would amplify that particular value). So grouping channels together eliminates this bias.</p>
+<p>As seen below, rather than doing attention on each pixel across each channel as we did in the naive self attention, we are doing attention on these heads which contain different channels grouped together. We group the channels together and carry out attention calculations.</p>
+<p><img src="multihead.PNG" alt="Alternative text" width="700" height="700"></p>
+<p>Now these heads carry different information about different parts of the image and attend to each other. Let’s see how to translate this in code. The main difference from our naive self attention is the rearrangement of the input dimensions.</p>
+<div id="85dfd4b6-b3fa-4857-a2c9-3f351ab089bd" class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> einops <span class="im">import</span> rearrange</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="d3b03a5d-c5c5-4af6-a4ee-07f6665ee1d7" class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SelfAttentionMultiHead(nn.Module):</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, ni, nheads):</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.nheads <span class="op">=</span> nheads</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.scale <span class="op">=</span> math.sqrt(ni<span class="op">/</span>nheads)</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.norm <span class="op">=</span> nn.BatchNorm2d(ni)</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.qkv <span class="op">=</span> nn.Linear(ni, ni<span class="op">*</span><span class="dv">3</span>)</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.proj <span class="op">=</span> nn.Linear(ni, ni)</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, inp):</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>        n,c,h,w <span class="op">=</span> inp.shape</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> <span class="va">self</span>.norm(inp).view(n, c, <span class="op">-</span><span class="dv">1</span>).transpose(<span class="dv">1</span>, <span class="dv">2</span>)</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> <span class="va">self</span>.qkv(x)</span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> rearrange(x, <span class="st">'n s (h d) -&gt; (n h) s d'</span>, h<span class="op">=</span><span class="va">self</span>.nheads)</span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>        q,k,v <span class="op">=</span> torch.chunk(x, <span class="dv">3</span>, dim<span class="op">=-</span><span class="dv">1</span>)</span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>        s <span class="op">=</span> (q<span class="op">@</span>k.transpose(<span class="dv">1</span>,<span class="dv">2</span>))<span class="op">/</span><span class="va">self</span>.scale</span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> s.softmax(dim<span class="op">=-</span><span class="dv">1</span>)<span class="op">@</span>v</span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> rearrange(x, <span class="st">'(n h) s d -&gt; n s (h d)'</span>, h<span class="op">=</span><span class="va">self</span>.nheads)</span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> <span class="va">self</span>.proj(x).transpose(<span class="dv">1</span>,<span class="dv">2</span>).reshape(n,c,h,w)</span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> x<span class="op">+</span>inp</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Let’s break down the part which is different from the naive Self Attention which is the rearrangement of the dimensions.To understand how it works, let’s try to have h=8(heads) for our multi-head attention. As our images are 32 channels, each head will have d=4(channels/head). - Now we rearrange the images of dimensions [64,256,32] or [n,s,c] into [(n h), s, d] or [512,256,4]. - What we did here was to have the 32 channels break down into 8 groups of 4. - Rather than having 64 images in each batch of 256 pixels and 32 channels, we have 512 images per batch of 256 pixels and 4 channels. - Now we decreased the number of channels for each image to 4 but we created 8 times more images in each batch. - We want each of the head(groups of channels) we created to be independent and have nothing to do with each other. So now as we turn one entire image of 32 channels into 8 images of 4 channels, they are completely independent and have nothing to do with each other as they are seperate images now. - Each of the head which has captured different set of information(channels) of the image is now independent ofhe other heads created.</p>
+<div id="5a9497b9-e256-4684-ae02-f5e9bd49cbc4" class="cell" data-execution_count="21">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> x.view(<span class="op">*</span>x.shape[:<span class="dv">2</span>], <span class="op">-</span><span class="dv">1</span>).transpose(<span class="dv">1</span>, <span class="dv">2</span>)</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>t.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="21">
+<pre><code>torch.Size([64, 256, 32])</code></pre>
+</div>
+</div>
+<div id="08b27e4f-1e3f-47ef-a6fe-d8fa4fa37f39" class="cell" data-execution_count="17">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> rearrange(t, <span class="st">'n s (h d) -&gt; (n h) s d'</span>, h<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>t.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="17">
+<pre><code>torch.Size([512, 256, 4])</code></pre>
+</div>
+</div>
+<p>After we have done the rearrangement, we do the matrix product of the q and k.T projection as before. Then we take the softmax across the rows to get the weight pixels and finally rearrange the input images into their original projection shape with “rearrange(x, ‘(n h) s d -&gt; n s (h d)’, h=self.nheads)” and do one final projection to give it a chance to learn some additional features. Finally, we reshape the image into its original raw form(n,c,h,w) and return the input with the addition of attention weights.</p>
+<div id="74810423-8f9d-4c46-8ec4-71e0a19f5f81" class="cell" data-execution_count="18">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>sa <span class="op">=</span> SelfAttentionMultiHead(<span class="dv">32</span>, <span class="dv">8</span>)</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>sx <span class="op">=</span> sa(x)</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>sx.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="18">
+<pre><code>torch.Size([64, 32, 16, 16])</code></pre>
+</div>
+</div>
+<div id="01c0e5b9-89f7-4b28-9188-6037bd10b630" class="cell" data-execution_count="19">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>sx.mean(),sx.std()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="19">
+<pre><code>(tensor(-0.0306, grad_fn=&lt;MeanBackward0&gt;),
+ tensor(1.0076, grad_fn=&lt;StdBackward0&gt;))</code></pre>
+</div>
+</div>
+<div id="d77d875c-32d1-4f48-8505-f064a26c7217" class="cell" data-execution_count="24">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> x.view(<span class="op">*</span>x.shape[:<span class="dv">2</span>], <span class="op">-</span><span class="dv">1</span>).transpose(<span class="dv">1</span>, <span class="dv">2</span>)</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>t.shape</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>nm <span class="op">=</span> nn.MultiheadAttention(<span class="dv">32</span>, num_heads<span class="op">=</span><span class="dv">8</span>, batch_first<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>nmx,nmw <span class="op">=</span> nm(t,t,t)</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>nmx <span class="op">=</span> nmx<span class="op">+</span>t</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="a624dd9e-307b-4122-8d30-a23a236257d7" class="cell" data-execution_count="25">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>nmx.mean(),nmx.std()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="25">
+<pre><code>(tensor(-0.0019, grad_fn=&lt;MeanBackward0&gt;),
+ tensor(1.0028, grad_fn=&lt;StdBackward0&gt;))</code></pre>
+</div>
+</div>
+</section>
+<section id="vision-transformers-vit" class="level2">
+<h2 class="anchored" data-anchor-id="vision-transformers-vit">Vision Transformers (ViT)</h2>
+<p>Now that we have understood what attention is in Vision, implemented naive self-attention and multihead attention let’s move onto the Vision transformer(ViT). ViT expands the success of transformer models from sequential data to images. We are going to dissect each component of the ViT model architecture for classification, implement it in code piece by piece. In the process of understanding and implementing ViT, we will touch upon few questions which can help us interpret the model. Questions like what do the attenion heads in ViT capture? Which attention heads are more important? What attention patterns have individual heads learned?</p>
+<p>ViT classifier runs in five key steps 1. Decompose the input image into a sequence of patch tokens 2. Concatenate CLS 3. Add positional encodings 4. Multi-head self-attention 5. Use the CLS token for prediction</p>
+<p>Below is the ViT architecture as drawn out in the original ViT paper</p>
+<p><img src="Vit.PNG" alt="Alternative text" width="700" height="700"></p>
+<section id="decompose-the-input-image-into-a-sequence-of-patch-tokens" class="level3">
+<h3 class="anchored" data-anchor-id="decompose-the-input-image-into-a-sequence-of-patch-tokens">Decompose the input image into a sequence of patch tokens</h3>
+<p>Original Transoformers was desinged for a sequence task. Here, we transform the image into a sequence of flattened 2D patches.</p>
+<p><img src="Patching.png" alt="Alternative text" width="700" height="700"></p>
+<p>As seen in the image above, we break the H,W,C image (where (H, W) is the resolution of the original image, C is the number of channels, (P, P) is the resolution of each image patch(16,16) in the above example) into N(=HW/P*P) patches. Each of the red box of each image patch represents the input patch embedding which is passed onto the ViT model as input. We just use a fully connected neurel net to get these embeddings for our implementation. The input sequence can also be formed from feature maps of a CNN which we are not doing in this implementation.</p>
+<div id="46fd7ed4-b1ec-428e-8de3-16ee3c946525" class="cell" data-execution_count="27">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>to_tensor <span class="op">=</span> [Resize((<span class="dv">144</span>, <span class="dv">144</span>)), ToTensor()]</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Compose(<span class="bu">object</span>):</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, transforms):</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.transforms <span class="op">=</span> transforms</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__call__</span>(<span class="va">self</span>, image, target):</span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> t <span class="kw">in</span> <span class="va">self</span>.transforms:</span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>            image <span class="op">=</span> t(image)</span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> image, target</span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> show_images(images, num_samples<span class="op">=</span><span class="dv">40</span>, cols<span class="op">=</span><span class="dv">8</span>):</span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a>    <span class="co">""" Plots some samples from the dataset """</span></span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a>    plt.figure(figsize<span class="op">=</span>(<span class="dv">15</span>,<span class="dv">15</span>))</span>
+<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a>    idx <span class="op">=</span> <span class="bu">int</span>(<span class="bu">len</span>(dataset) <span class="op">/</span> num_samples)</span>
+<span id="cb32-16"><a href="#cb32-16" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(images)</span>
+<span id="cb32-17"><a href="#cb32-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i, img <span class="kw">in</span> <span class="bu">enumerate</span>(images):</span>
+<span id="cb32-18"><a href="#cb32-18" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> i <span class="op">%</span> idx <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb32-19"><a href="#cb32-19" aria-hidden="true" tabindex="-1"></a>            plt.subplot(<span class="bu">int</span>(num_samples<span class="op">/</span>cols) <span class="op">+</span> <span class="dv">1</span>, cols, <span class="bu">int</span>(i<span class="op">/</span>idx) <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb32-20"><a href="#cb32-20" aria-hidden="true" tabindex="-1"></a>            plt.imshow(to_pil_image(img[<span class="dv">0</span>]))</span>
+<span id="cb32-21"><a href="#cb32-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-22"><a href="#cb32-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-23"><a href="#cb32-23" aria-hidden="true" tabindex="-1"></a>dataset <span class="op">=</span> OxfordIIITPet(root<span class="op">=</span><span class="st">"."</span>, download<span class="op">=</span><span class="va">True</span>, transforms<span class="op">=</span>Compose(to_tensor))</span>
+<span id="cb32-24"><a href="#cb32-24" aria-hidden="true" tabindex="-1"></a><span class="co"># show_images(dataset)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Let’s breakdown one image into patches, flatten it and create its embedding by passing it onto a feed forward network</p>
+<div id="96aa83bb-5615-4ece-b8f2-9b6f453bddbd" class="cell" data-execution_count="28">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>patch_size<span class="op">=</span><span class="dv">8</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>in_channels <span class="op">=</span> <span class="dv">3</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>emb_size <span class="op">=</span> <span class="dv">128</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>sample_datapoint <span class="op">=</span> torch.unsqueeze(dataset[<span class="dv">0</span>][<span class="dv">0</span>], <span class="dv">0</span>)</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Initial shape: "</span>, sample_datapoint.shape)</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>patch_reshaped <span class="op">=</span> rearrange(sample_datapoint,<span class="st">'b c (h p1) (w p2) -&gt; b (h w) (p1 p2 c)'</span>, p1<span class="op">=</span>patch_size, p2<span class="op">=</span>patch_size)</span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Shape after einops dimensions reshape"</span> ,patch_reshaped.shape)</span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>patch_emb <span class="op">=</span> nn.Linear(patch_size <span class="op">*</span> patch_size <span class="op">*</span> in_channels, emb_size)</span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>patch_emb <span class="op">=</span> patch_emb(patch_reshaped)</span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Shape of the final embedded patch"</span>, patch_emb.shape)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Initial shape:  torch.Size([1, 3, 144, 144])
+Shape after einops dimensions reshape torch.Size([1, 324, 192])
+Shape of the final embedded patch torch.Size([1, 324, 128])</code></pre>
+</div>
+</div>
+<p>Let’s create a class to get the Patch Embeddings</p>
+<div id="521f5df2-8ee1-4cf9-a6c5-2e8e00eafb44" class="cell" data-execution_count="29">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> PatchEmbedding(nn.Module):</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, in_channels <span class="op">=</span> <span class="dv">3</span>, patch_size <span class="op">=</span> <span class="dv">8</span>, emb_size <span class="op">=</span> <span class="dv">128</span>):</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.patch_size <span class="op">=</span> patch_size</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.projection <span class="op">=</span> nn.Sequential(</span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>            <span class="co"># break-down the image in s1 x s2 patches and flatten them</span></span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>            Rearrange(<span class="st">'b c (h p1) (w p2) -&gt; b (h w) (p1 p2 c)'</span>, p1<span class="op">=</span>patch_size, p2<span class="op">=</span>patch_size),</span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>            nn.Linear(patch_size <span class="op">*</span> patch_size <span class="op">*</span> in_channels, emb_size)</span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, x: Tensor) <span class="op">-&gt;</span> Tensor:</span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> <span class="va">self</span>.projection(x)</span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> x</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="f067bbcf-d682-43cd-9eeb-0bd708a747da" class="cell" data-execution_count="30">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>sample_datapoint <span class="op">=</span> torch.unsqueeze(dataset[<span class="dv">0</span>][<span class="dv">0</span>], <span class="dv">0</span>)</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Initial shape: "</span>, sample_datapoint.shape)</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>embedding <span class="op">=</span> PatchEmbedding()(sample_datapoint)</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Patches shape: "</span>, embedding.shape)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Initial shape:  torch.Size([1, 3, 144, 144])
+Patches shape:  torch.Size([1, 324, 128])</code></pre>
+</div>
+</div>
+</section>
+<section id="concatenate-cls" class="level3">
+<h3 class="anchored" data-anchor-id="concatenate-cls">Concatenate CLS</h3>
+<p>Typically when you are doing a classification task, you want a all of the information you extracted into a single representation and use it for classification. When we use CNNs, we have a fully connected layer at the end of the network which acts as the classification head. As Transformer is a sequence to sequence model and as there is no decoder layer in ViT, then the length of input sequence (number of patches) equals the length of output sequence. Here we add a dummy input, call it class token and apply the classification layer on the corresponding output item. So the Cls token is a dummy input which is later filled with information collected from all of the patch input tokens. Initially it is randomly initialised and is a learnable parameter. It acts as a global feature extractor which represents the entire image and is then used for downstream tasks, which is classification in our case. CLS learns to accumulate class-related features used to generate the final class probability.</p>
+<p>One interesting thing is that CLS token attends to all the other tokens and all the other tokens attend to the CLS token as well. One can think the CLS token attending to every other token will help it learn about the image information captured by the patch tokens. Do Patch tokens attending to the CLS tokens help them get some relevant information about the image class, is a something which would be interesting to explore. We will go into the different types of attention ViT captures(patch-patch,patch-cls,cls-cls) in detail later.</p>
+<p><img src="Cls_token.png" alt="Alternative text" width="700" height="700"></p>
+<p>As we can see the red circled CLS token is concatenated with all the other positional embeddings(expained in the next section).</p>
+</section>
+<section id="positional-embeddings" class="level3">
+<h3 class="anchored" data-anchor-id="positional-embeddings">Positional Embeddings</h3>
+<p>The zero-initialized positional encodings are added to the (1+p^2)xh matrix. They are trained to learn each patch’s positional information. Just like the CLS token, we learn these positional embeddings.</p>
+</section>
+<section id="the-transformer-encoder-with-multi-layer-multi-head-self-attention" class="level3">
+<h3 class="anchored" data-anchor-id="the-transformer-encoder-with-multi-layer-multi-head-self-attention">The Transformer Encoder with Multi-layer Multi-head self-attention</h3>
+<p>This step contains l stacked attention layers, each with n attention heads. Each head learns a (1+p<sup>2)×(1+p</sup>2) attention weight matrix A, reflecting the pair-wise attention between all 1+p^2 tokens. ( where p is the patch embedding size or patch_size).</p>
+<p>The ViT transfomer encoder contains 4 building blocks. Let’s go ahead and implement them.</p>
+<p><img src="transformer_blocks.png" alt="Alternative text" width="700" height="700"></p>
+<div id="f2dd2fcf-ea43-43e8-a64e-9954b5171c5b" class="cell" data-execution_count="31">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Attention(nn.Module):</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, dim, heads <span class="op">=</span> <span class="dv">8</span>, dim_head <span class="op">=</span> <span class="dv">64</span>, dropout <span class="op">=</span> <span class="fl">0.</span>):</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>        inner_dim <span class="op">=</span> dim_head <span class="op">*</span>  heads</span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>        project_out <span class="op">=</span> <span class="kw">not</span> (heads <span class="op">==</span> <span class="dv">1</span> <span class="kw">and</span> dim_head <span class="op">==</span> dim)</span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.heads <span class="op">=</span> heads</span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.scale <span class="op">=</span> dim_head <span class="op">**</span> <span class="op">-</span><span class="fl">0.5</span></span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.norm <span class="op">=</span> nn.LayerNorm(dim)</span>
+<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-12"><a href="#cb38-12" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.attend <span class="op">=</span> nn.Softmax(dim <span class="op">=</span> <span class="op">-</span><span class="dv">1</span>)</span>
+<span id="cb38-13"><a href="#cb38-13" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.dropout <span class="op">=</span> nn.Dropout(dropout)</span>
+<span id="cb38-14"><a href="#cb38-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-15"><a href="#cb38-15" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.to_qkv <span class="op">=</span> nn.Linear(dim, inner_dim <span class="op">*</span> <span class="dv">3</span>, bias <span class="op">=</span> <span class="va">False</span>)</span>
+<span id="cb38-16"><a href="#cb38-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-17"><a href="#cb38-17" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.to_out <span class="op">=</span> nn.Sequential(</span>
+<span id="cb38-18"><a href="#cb38-18" aria-hidden="true" tabindex="-1"></a>            nn.Linear(inner_dim, dim),</span>
+<span id="cb38-19"><a href="#cb38-19" aria-hidden="true" tabindex="-1"></a>            nn.Dropout(dropout)</span>
+<span id="cb38-20"><a href="#cb38-20" aria-hidden="true" tabindex="-1"></a>        ) <span class="cf">if</span> project_out <span class="cf">else</span> nn.Identity()</span>
+<span id="cb38-21"><a href="#cb38-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-22"><a href="#cb38-22" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, x):</span>
+<span id="cb38-23"><a href="#cb38-23" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> <span class="va">self</span>.norm(x)</span>
+<span id="cb38-24"><a href="#cb38-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-25"><a href="#cb38-25" aria-hidden="true" tabindex="-1"></a>        qkv <span class="op">=</span> <span class="va">self</span>.to_qkv(x).chunk(<span class="dv">3</span>, dim <span class="op">=</span> <span class="op">-</span><span class="dv">1</span>)</span>
+<span id="cb38-26"><a href="#cb38-26" aria-hidden="true" tabindex="-1"></a>        q, k, v <span class="op">=</span> <span class="bu">map</span>(<span class="kw">lambda</span> t: rearrange(t, <span class="st">'b n (h d) -&gt; b h n d'</span>, h <span class="op">=</span> <span class="va">self</span>.heads), qkv)</span>
+<span id="cb38-27"><a href="#cb38-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-28"><a href="#cb38-28" aria-hidden="true" tabindex="-1"></a>        dots <span class="op">=</span> torch.matmul(q, k.transpose(<span class="op">-</span><span class="dv">1</span>, <span class="op">-</span><span class="dv">2</span>)) <span class="op">*</span> <span class="va">self</span>.scale</span>
+<span id="cb38-29"><a href="#cb38-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-30"><a href="#cb38-30" aria-hidden="true" tabindex="-1"></a>        attn <span class="op">=</span> <span class="va">self</span>.attend(dots)</span>
+<span id="cb38-31"><a href="#cb38-31" aria-hidden="true" tabindex="-1"></a>        attn <span class="op">=</span> <span class="va">self</span>.dropout(attn)</span>
+<span id="cb38-32"><a href="#cb38-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-33"><a href="#cb38-33" aria-hidden="true" tabindex="-1"></a>        out <span class="op">=</span> torch.matmul(attn, v)</span>
+<span id="cb38-34"><a href="#cb38-34" aria-hidden="true" tabindex="-1"></a>        out <span class="op">=</span> rearrange(out, <span class="st">'b h n d -&gt; b n (h d)'</span>)</span>
+<span id="cb38-35"><a href="#cb38-35" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.to_out(out)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="e0c2c1b0-b3c0-4773-845d-585534e740d2" class="cell" data-execution_count="32">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>Attention(dim<span class="op">=</span><span class="dv">128</span>, heads<span class="op">=</span><span class="dv">4</span>, dropout<span class="op">=</span><span class="fl">0.</span>)(torch.ones((<span class="dv">1</span>, <span class="dv">5</span>, <span class="dv">128</span>))).shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="32">
+<pre><code>torch.Size([1, 5, 128])</code></pre>
+</div>
+</div>
+<p>We use Layer Normalisation below. If we think about why layer normalisation is used, and not the more common batch norm used in Vision.It is a common practive that layer norm is used in NLP tasks and batch norm is used in Vision tasks. As transformers were intially built for sequence nlp inputs, layer norm was used. But even in ViT, where we use transformers in vision, layer norm is still used. The reason for this might be how the normalisation stats - mean and variance, are calculated in layer norm. In batchnorm, the mean and variance statistics used for normalization are calculated across all elements of all instances in a batch(elements mean pixels and instance means an image). For layernorm, the statistics are calculated across the feature dimension, for each element and instance independently. LayerNorm computes the mean and variance of all channels at each spatial location (each pixel) independently across all images in the batch. The normalization is then performed independently for each spatial location (each pixel) using the calculated mean and variance across all channels at that location. This aligns with how transformers work. In transformers, we are not concerned with the other instances in the batch when we are doing attention, but we what is more important is how rich the feature relationship information we have captured is. So normalising across the all features(or channels) of an image is very similar to what we are doing with attention.</p>
+<div id="60dae322-7489-4cc9-88ab-0104d0decf01" class="cell" data-execution_count="34">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> PreNorm(nn.Module):</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, dim, fn):</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.norm <span class="op">=</span> nn.LayerNorm(dim)</span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.fn <span class="op">=</span> fn</span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, x, <span class="op">**</span>kwargs):</span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.fn(<span class="va">self</span>.norm(x), <span class="op">**</span>kwargs)</span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a>norm <span class="op">=</span> PreNorm(<span class="dv">128</span>, Attention(dim<span class="op">=</span><span class="dv">128</span>, heads<span class="op">=</span><span class="dv">4</span>, dropout<span class="op">=</span><span class="fl">0.</span>))</span>
+<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a>norm(torch.ones((<span class="dv">1</span>, <span class="dv">5</span>, <span class="dv">128</span>))).shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="34">
+<pre><code>torch.Size([1, 5, 128])</code></pre>
+</div>
+</div>
+<div id="b2ed0324-cc3b-4116-a3d2-616f90bd3cfe" class="cell" data-execution_count="35">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> FeedForward(nn.Sequential):</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, dim, hidden_dim, dropout <span class="op">=</span> <span class="fl">0.</span>):</span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>(</span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>            nn.Linear(dim, hidden_dim),</span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>            nn.GELU(),</span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>            nn.Dropout(dropout),</span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>            nn.Linear(hidden_dim, dim),</span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>            nn.Dropout(dropout)</span>
+<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a>ff <span class="op">=</span> FeedForward(dim<span class="op">=</span><span class="dv">128</span>, hidden_dim<span class="op">=</span><span class="dv">256</span>)</span>
+<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a>ff(torch.ones((<span class="dv">1</span>, <span class="dv">5</span>, <span class="dv">128</span>))).shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="35">
+<pre><code>torch.Size([1, 5, 128])</code></pre>
+</div>
+</div>
+<div id="3f267dfb-1e36-4022-9e43-dddb70ee9900" class="cell" data-execution_count="37">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> ResidualAdd(nn.Module):</span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, fn):</span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.fn <span class="op">=</span> fn</span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, x, <span class="op">**</span>kwargs):</span>
+<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a>        res <span class="op">=</span> x</span>
+<span id="cb45-8"><a href="#cb45-8" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> <span class="va">self</span>.fn(x, <span class="op">**</span>kwargs)</span>
+<span id="cb45-9"><a href="#cb45-9" aria-hidden="true" tabindex="-1"></a>        x <span class="op">+=</span> res</span>
+<span id="cb45-10"><a href="#cb45-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> x</span>
+<span id="cb45-11"><a href="#cb45-11" aria-hidden="true" tabindex="-1"></a>residual_att <span class="op">=</span> ResidualAdd(Attention(dim<span class="op">=</span><span class="dv">128</span>, heads<span class="op">=</span><span class="dv">4</span>, dropout<span class="op">=</span><span class="fl">0.</span>))</span>
+<span id="cb45-12"><a href="#cb45-12" aria-hidden="true" tabindex="-1"></a>residual_att(torch.ones((<span class="dv">1</span>, <span class="dv">5</span>, <span class="dv">128</span>))).shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="37">
+<pre><code>torch.Size([1, 5, 128])</code></pre>
+</div>
+</div>
+</section>
+<section id="use-the-cls-token-for-prediction" class="level3">
+<h3 class="anchored" data-anchor-id="use-the-cls-token-for-prediction">Use the CLS token for prediction</h3>
+<p>This step decouples the CLS embedding from the patch tokens, and transforms it into class logits through fully-connected layers.</p>
+</section>
+<section id="final-vit-class" class="level3">
+<h3 class="anchored" data-anchor-id="final-vit-class">Final ViT class</h3>
+<p>Let’s go ahead and put all of the pieces we created together</p>
+<div id="241544cf-52cc-4d4c-8c17-ce4f7a9d73e1" class="cell" data-execution_count="38">
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> einops <span class="im">import</span> repeat</span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> ViT(nn.Module):</span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, ch<span class="op">=</span><span class="dv">3</span>, img_size<span class="op">=</span><span class="dv">144</span>, patch_size<span class="op">=</span><span class="dv">4</span>, emb_dim<span class="op">=</span><span class="dv">32</span>,</span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a>                n_layers<span class="op">=</span><span class="dv">6</span>, out_dim<span class="op">=</span><span class="dv">37</span>, dropout<span class="op">=</span><span class="fl">0.1</span>, heads<span class="op">=</span><span class="dv">2</span>):</span>
+<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>(ViT, <span class="va">self</span>).<span class="fu">__init__</span>()</span>
+<span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-8"><a href="#cb47-8" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Attributes</span></span>
+<span id="cb47-9"><a href="#cb47-9" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.channels <span class="op">=</span> ch</span>
+<span id="cb47-10"><a href="#cb47-10" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.height <span class="op">=</span> img_size</span>
+<span id="cb47-11"><a href="#cb47-11" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.width <span class="op">=</span> img_size</span>
+<span id="cb47-12"><a href="#cb47-12" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.patch_size <span class="op">=</span> patch_size</span>
+<span id="cb47-13"><a href="#cb47-13" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.n_layers <span class="op">=</span> n_layers</span>
+<span id="cb47-14"><a href="#cb47-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-15"><a href="#cb47-15" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Patching</span></span>
+<span id="cb47-16"><a href="#cb47-16" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.patch_embedding <span class="op">=</span> PatchEmbedding(in_channels<span class="op">=</span>ch,</span>
+<span id="cb47-17"><a href="#cb47-17" aria-hidden="true" tabindex="-1"></a>                                              patch_size<span class="op">=</span>patch_size,</span>
+<span id="cb47-18"><a href="#cb47-18" aria-hidden="true" tabindex="-1"></a>                                              emb_size<span class="op">=</span>emb_dim)</span>
+<span id="cb47-19"><a href="#cb47-19" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Learnable params</span></span>
+<span id="cb47-20"><a href="#cb47-20" aria-hidden="true" tabindex="-1"></a>        num_patches <span class="op">=</span> (img_size <span class="op">//</span> patch_size) <span class="op">**</span> <span class="dv">2</span></span>
+<span id="cb47-21"><a href="#cb47-21" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.pos_embedding <span class="op">=</span> nn.Parameter(</span>
+<span id="cb47-22"><a href="#cb47-22" aria-hidden="true" tabindex="-1"></a>            torch.randn(<span class="dv">1</span>, num_patches <span class="op">+</span> <span class="dv">1</span>, emb_dim))</span>
+<span id="cb47-23"><a href="#cb47-23" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.cls_token <span class="op">=</span> nn.Parameter(torch.rand(<span class="dv">1</span>, <span class="dv">1</span>, emb_dim))</span>
+<span id="cb47-24"><a href="#cb47-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-25"><a href="#cb47-25" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Transformer Encoder</span></span>
+<span id="cb47-26"><a href="#cb47-26" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.layers <span class="op">=</span> nn.ModuleList([])</span>
+<span id="cb47-27"><a href="#cb47-27" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(n_layers):</span>
+<span id="cb47-28"><a href="#cb47-28" aria-hidden="true" tabindex="-1"></a>            transformer_block <span class="op">=</span> nn.Sequential(</span>
+<span id="cb47-29"><a href="#cb47-29" aria-hidden="true" tabindex="-1"></a>                ResidualAdd(PreNorm(emb_dim, Attention(emb_dim, heads <span class="op">=</span> heads, dropout <span class="op">=</span> dropout))),</span>
+<span id="cb47-30"><a href="#cb47-30" aria-hidden="true" tabindex="-1"></a>                ResidualAdd(PreNorm(emb_dim, FeedForward(emb_dim, emb_dim, dropout <span class="op">=</span> dropout))))</span>
+<span id="cb47-31"><a href="#cb47-31" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.layers.append(transformer_block)</span>
+<span id="cb47-32"><a href="#cb47-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-33"><a href="#cb47-33" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Classification head</span></span>
+<span id="cb47-34"><a href="#cb47-34" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.head <span class="op">=</span> nn.Sequential(nn.LayerNorm(emb_dim), nn.Linear(emb_dim, out_dim))</span>
+<span id="cb47-35"><a href="#cb47-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-36"><a href="#cb47-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-37"><a href="#cb47-37" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, img):</span>
+<span id="cb47-38"><a href="#cb47-38" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Get patch embedding vectors</span></span>
+<span id="cb47-39"><a href="#cb47-39" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> <span class="va">self</span>.patch_embedding(img)</span>
+<span id="cb47-40"><a href="#cb47-40" aria-hidden="true" tabindex="-1"></a>        b, n, _ <span class="op">=</span> x.shape</span>
+<span id="cb47-41"><a href="#cb47-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-42"><a href="#cb47-42" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Add cls token to inputs</span></span>
+<span id="cb47-43"><a href="#cb47-43" aria-hidden="true" tabindex="-1"></a>        cls_tokens <span class="op">=</span> repeat(<span class="va">self</span>.cls_token, <span class="st">'1 1 d -&gt; b 1 d'</span>, b <span class="op">=</span> b)</span>
+<span id="cb47-44"><a href="#cb47-44" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> torch.cat([cls_tokens, x], dim<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb47-45"><a href="#cb47-45" aria-hidden="true" tabindex="-1"></a>        x <span class="op">+=</span> <span class="va">self</span>.pos_embedding[:, :(n <span class="op">+</span> <span class="dv">1</span>)]</span>
+<span id="cb47-46"><a href="#cb47-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-47"><a href="#cb47-47" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Transformer layers</span></span>
+<span id="cb47-48"><a href="#cb47-48" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="va">self</span>.n_layers):</span>
+<span id="cb47-49"><a href="#cb47-49" aria-hidden="true" tabindex="-1"></a>            x <span class="op">=</span> <span class="va">self</span>.layers[i](x)</span>
+<span id="cb47-50"><a href="#cb47-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-51"><a href="#cb47-51" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Output based on classification token</span></span>
+<span id="cb47-52"><a href="#cb47-52" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.head(x[:, <span class="dv">0</span>, :])</span>
+<span id="cb47-53"><a href="#cb47-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-54"><a href="#cb47-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-55"><a href="#cb47-55" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> ViT()</span>
+<span id="cb47-56"><a href="#cb47-56" aria-hidden="true" tabindex="-1"></a>model(torch.ones((<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">144</span>, <span class="dv">144</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="38">
+<pre><code>tensor([[-1.0458,  0.4171, -0.9099, -0.1380, -0.4593, -0.0648, -0.4884, -0.0094,
+          0.1941,  0.1272,  0.3649,  0.2897,  1.0110, -0.0136,  0.8620, -0.2971,
+         -0.2390, -0.0801, -0.5791, -0.2363, -0.5813, -0.1375,  0.2628,  1.3497,
+         -0.1218, -0.2292, -0.7679,  0.4300, -0.7301, -0.7377, -1.3888,  0.2043,
+         -0.5364,  0.2651,  0.2471, -0.2534,  0.1637]],
+       grad_fn=&lt;AddmmBackward0&gt;)</code></pre>
+</div>
+</div>
+</section>
+<section id="visualising-the-attention-matrix" class="level3">
+<h3 class="anchored" data-anchor-id="visualising-the-attention-matrix">Visualising the Attention Matrix</h3>
+<p><img src="attn_matrix.PNG" alt="Alternative text" width="700" height="700"></p>
+<p><em>Source:How Does Attention Work in Vision Transformers? A Visual Analytics Attempt</em></p>
+<p>The attention matrix of a head can be divided into four regions based on the source and target tokens: CLS→CLS, CLS→patches, patches→CLS, and patches→patches. All of these 4 regions represent different attention relationship and can be analysed seperately and together to see how they contribute to the results.</p>
+</section>
+</section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<p>We started off by understanding the fundamentals of attention, went on to implement our own attention blocks and the ViT arechitecture. We tried to draw out each step of the process, play with the shapes of various intermediate outputs, build a basic intuition on what the attention matrices are doing and implement the entire code from scratch. As good as the results of attention in vision have been, their data hungry nature and lack of inductive bias has kept it from replacing CNNs all over. For cases where there is not enough training data CNN still might be the better option. Nonetheless, attention in vision has had a huge success and is generating state of the art results all over. Understanding how and why it works as good as it has, makes us better informed about its possibilities and limitations. With this understanding we can start using it with “attention” to its process and deduce the quality of the results better.</p>
+<section id="acknowledgements" class="level4">
+<h4 class="anchored" data-anchor-id="acknowledgements">Acknowledgements</h4>
+<ul>
+<li><a href="https://arxiv.org/pdf/2010.11929.pdf">AN IMAGE IS WORTH 16X16 WORDS:TRANSFORMERS FOR IMAGE RECOGNITION AT SCALE</a></li>
+<li><a href="https://arxiv.org/pdf/2303.13731.pdf">How Does Attention Work in Vision Transformers? A Visual Analytics Attempt</a></li>
+<li><a href="https://github.com/lucidrains/vit-pytorch/blob/main/vit_pytorch/vit.py">Lucidrains implementation Github</a></li>
+<li><a href="https://github.com/fastai/course22p2/blob/master/nbs/27_attention.ipynb">Fast AI</a></li>
+</ul>
+
+
+</section>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<script src="https://utteranc.es/client.js" repo="quarto-dev/quarto-web" issue-term="pathname" theme="github-light" crossorigin="anonymous" async="">
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
