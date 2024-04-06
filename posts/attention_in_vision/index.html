@@ -339,7 +339,15 @@ d - 2nd pixel all channels(q) X 1st pixel all channles(k)
 </section>
 <section id="multihead-self-attention" class="level2">
 <h2 class="anchored" data-anchor-id="multihead-self-attention">MultiHead Self-Attention</h2>
-<p>Naive application of self-attention to images would require that each pixel attends to every other pixel. With quadratic cost in the number of pixels, this does not scale to realistic input sizes. So one method which is very intuitive is to group some channels together from different parts of the image. These groups of channels are called “heads”. Now each head would have few channels grouped together and these heads will carry information about different aspects of the image depending on what the channels in a particular group(or head) capture. For understanding purposes , we can assume one head has capured part of the image which has information about the temperature(brightness) of the image, another head has information about the regions that correspond to cat features like ears, eyes, nose, or tail and so on. * As compared to our naive self attention, we do the dot product between these heads or groups of channels * As we use softmax to sum a row and get weight for each pixel, if we just use pixel self attention, the attention might be biased to just one large value as the softmax of that large value would be enormous compared to other values ( as e^x would amplify that particular value). So grouping channels together eliminates this bias.</p>
+Naive application of self-attention to images would require that each pixel attends to every other pixel. With quadratic cost in the number of pixels, this does not scale to realistic input sizes. So one method which is very intuitive is to group some channels together from different parts of the image. These groups of channels are called “heads”. Now each head would have few channels grouped together and these heads will carry information about different aspects of the image depending on what the channels in a particular group(or head) capture. For understanding purposes , we can assume one head has capured part of the image which has information about the temperature(brightness) of the image, another head has information about the regions that correspond to cat features like ears, eyes, nose, or tail and so on.
+<ul>
+<li>
+As compared to our naive self attention, we do the dot product between these heads or groups of channels
+</li>
+<li>
+As we use softmax to sum a row and get weight for each pixel, if we just use pixel self attention, the attention might be biased to just one large value as the softmax of that large value would be enormous compared to other values ( as e^x would amplify that particular value). So grouping channels together eliminates this bias.
+</li>
+</ul>
 <p>As seen below, rather than doing attention on each pixel across each channel as we did in the naive self attention, we are doing attention on these heads which contain different channels grouped together. We group the channels together and carry out attention calculations.</p>
 <p><img src="multihead.PNG" alt="Alternative text" width="700" height="400"></p>
 <p>Now these heads carry different information about different parts of the image and attend to each other. Let’s see how to translate this in code. The main difference from our naive self attention is the rearrangement of the input dimensions.</p>
@@ -368,7 +376,27 @@ d - 2nd pixel all channels(q) X 1st pixel all channles(k)
 <span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> <span class="va">self</span>.proj(x).transpose(<span class="dv">1</span>,<span class="dv">2</span>).reshape(n,c,h,w)</span>
 <span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> x<span class="op">+</span>inp</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Let’s break down the part which is different from the naive Self Attention which is the rearrangement of the dimensions.To understand how it works, let’s try to have h=8(heads) for our multi-head attention. As our images are 32 channels, each head will have d=4(channels/head). * Now we rearrange the images of dimensions [64,256,32] or [n,s,c] into [(n h), s, d] or [512,256,4]. * What we did here was to have the 32 channels break down into 8 groups of 4. * Rather than having 64 images in each batch of 256 pixels and 32 channels, we have 512 images per batch of 256 pixels and 4 channels. * Now we decreased the number of channels for each image to 4 but we created 8 times more images in each batch. * We want each of the head(groups of channels) we created to be independent and have nothing to do with each other. So now as we turn one entire image of 32 channels into 8 images of 4 channels, they are completely independent and have nothing to do with each other as they are seperate images now. * Each of the head which has captured different set of information(channels) of the image is now independent ofhe other heads created.</p>
+Let’s break down the part which is different from the naive Self Attention which is the rearrangement of the dimensions.To understand how it works, let’s try to have h=8(heads) for our multi-head attention. As our images are 32 channels, each head will have d=4(channels/head).
+<ul>
+<li>
+Now we rearrange the images of dimensions [64,256,32] or [n,s,c] into [(n h), s, d] or [512,256,4].
+</li>
+<li>
+What we did here was to have the 32 channels break down into 8 groups of 4.
+</li>
+<li>
+Rather than having 64 images in each batch of 256 pixels and 32 channels, we have 512 images per batch of 256 pixels and 4 channels.
+</li>
+<li>
+Now we decreased the number of channels for each image to 4 but we created 8 times more images in each batch.
+</li>
+<li>
+We want each of the head(groups of channels) we created to be independent and have nothing to do with each other. So now as we turn one entire image of 32 channels into 8 images of 4 channels, they are completely independent and have nothing to do with each other as they are seperate images now.
+</li>
+<li>
+Each of the head which has captured different set of information(channels) of the image is now independent ofhe other heads created.
+</li>
+</ul>
 <div id="5a9497b9-e256-4684-ae02-f5e9bd49cbc4" class="cell" data-execution_count="21">
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>t <span class="op">=</span> x.view(<span class="op">*</span>x.shape[:<span class="dv">2</span>], <span class="op">-</span><span class="dv">1</span>).transpose(<span class="dv">1</span>, <span class="dv">2</span>)</span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>t.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -417,7 +445,24 @@ d - 2nd pixel all channels(q) X 1st pixel all channles(k)
 <section id="vision-transformers-vit" class="level2">
 <h2 class="anchored" data-anchor-id="vision-transformers-vit">Vision Transformers (ViT)</h2>
 <p>Now that we have understood what attention is in Vision, implemented naive self-attention and multihead attention let’s move onto the Vision transformer(ViT). ViT expands the success of transformer models from sequential data to images. We are going to dissect each component of the ViT model architecture for classification, implement it in code piece by piece. In the process of understanding and implementing ViT, we will touch upon few questions which can help us interpret the model. Questions like what do the attenion heads in ViT capture? Which attention heads are more important? What attention patterns have individual heads learned?</p>
-<p>ViT classifier runs in five key steps 1. Decompose the input image into a sequence of patch tokens 2. Concatenate CLS 3. Add positional encodings 4. Multi-head self-attention 5. Use the CLS token for prediction</p>
+ViT classifier runs in five key steps
+<ol>
+<li>
+Decompose the input image into a sequence of patch tokens
+</li>
+<li>
+Concatenate CLS
+</li>
+<li>
+Add positional encodings
+</li>
+<li>
+Multi-head self-attention
+</li>
+<li>
+Use the CLS token for prediction
+</li>
+</ol>
 <p>Below is the ViT architecture as drawn out in the original ViT paper</p>
 <p><img src="Vit.PNG" alt="Alternative text" width="700" height="400"></p>
 <section id="decompose-the-input-image-into-a-sequence-of-patch-tokens" class="level3">
