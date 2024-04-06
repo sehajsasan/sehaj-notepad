@@ -15,7 +15,7 @@ website:
       repo: quarto-dev/quarto-web
 format:
   html:
-    theme: litera
+    theme: sandstone
     css: styles.css
 
 
