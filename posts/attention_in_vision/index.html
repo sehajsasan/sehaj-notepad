@@ -467,7 +467,7 @@ Use the CLS token for prediction
 <p><img src="Vit.PNG" alt="Alternative text" width="700" height="400"></p>
 <section id="decompose-the-input-image-into-a-sequence-of-patch-tokens" class="level3">
 <h3 class="anchored" data-anchor-id="decompose-the-input-image-into-a-sequence-of-patch-tokens">Decompose the input image into a sequence of patch tokens</h3>
-<p>Original Transoformers was desinged for a sequence task. Here, we transform the image into a sequence of flattened 2D patches.</p>
+<p>Original Transformers was designed for a sequence task. Here, we transform the image into a sequence of flattened 2D patches.</p>
 <p><img src="Patching.png" alt="Alternative text" width="700" height="400"></p>
 <p>As seen in the image above, we break the H,W,C image (where (H, W) is the resolution of the original image, C is the number of channels, (P, P) is the resolution of each image patch(16,16) in the above example) into N(=HW/P*P) patches. Each of the red box of each image patch represents the input patch embedding which is passed onto the ViT model as input. We just use a fully connected neurel net to get these embeddings for our implementation. The input sequence can also be formed from feature maps of a CNN which we are not doing in this implementation.</p>
 <div id="46fd7ed4-b1ec-428e-8de3-16ee3c946525" class="cell" data-execution_count="27">
@@ -554,7 +554,7 @@ Patches shape:  torch.Size([1, 324, 128])</code></pre>
 </section>
 <section id="the-transformer-encoder-with-multi-layer-multi-head-self-attention" class="level3">
 <h3 class="anchored" data-anchor-id="the-transformer-encoder-with-multi-layer-multi-head-self-attention">The Transformer Encoder with Multi-layer Multi-head self-attention</h3>
-<p>This step contains l stacked attention layers, each with n attention heads. Each head learns a (1+p<sup>2)×(1+p</sup>2) attention weight matrix A, reflecting the pair-wise attention between all 1+p^2 tokens. ( where p is the patch embedding size or patch_size).</p>
+<p>This step contains l stacked attention layers, each with n attention heads. Each head learns a (1+p^2) × (1+p^2) attention weight matrix A, reflecting the pair-wise attention between all 1+p^2 tokens. ( where p is the patch embedding size or patch_size).</p>
 <p>The ViT transfomer encoder contains 4 building blocks. Let’s go ahead and implement them.</p>
 <p><img src="transformer_blocks.png" alt="Alternative text" width="700" height="400"></p>
 <div id="f2dd2fcf-ea43-43e8-a64e-9954b5171c5b" class="cell" data-execution_count="31">
