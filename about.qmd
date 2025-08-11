@@ -9,7 +9,7 @@ about:
       href: https://twitter.com/sehajsasan
     - icon: linkedin
       text: LinkedIn
-      href: https://linkedin.com
+      href: https://linkedin.com/in/sehajdeep-singh-3a54957a
     - icon: github
       text: Github
       href: https://github.com/sehajsasan
