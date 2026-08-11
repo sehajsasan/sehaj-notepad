@@ -2,6 +2,7 @@
   {
     "listing": "/index.html",
     "items": [
+      "/posts/diffusion_timestep_mismatch_probe/index.html",
       "/posts/attention_in_vision/index.html",
       "/posts/latent_diffusion/index.html",
       "/posts/nca/index.html"
