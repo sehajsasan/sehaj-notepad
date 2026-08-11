@@ -12,9 +12,9 @@ website:
         href: https://twitter.com/sehajsasan
       - icon: linkedin
         href: https://www.linkedin.com/in/sehajdeeep-singh-3a54957a/
-  comments: 
-    utterances:
-      repo: quarto-dev/quarto-web
+  # comments: 
+  #   utterances:
+  #     repo: quarto-dev/quarto-web
 format:
   html:
     theme: cosmo
