@@ -315,7 +315,7 @@ x_{50} \longrightarrow \epsilon_\theta(x_{50}, \mathrm{off\_t}, c),
 <p><span class="math display">\[
 x_{50} \longrightarrow \epsilon_\theta(x_{50}, 500, c)
 \]</span></p>
-<p>This is the same noisy latent as before, but now the timestep sent to the pre-trained noise predictor is <span class="math inline">\(500\)</span>. This is the middle of our mismatch probe where the far end of the mismatch spectrum is timestep $1000 and the correct timestep is $50. In this middle point of the spectrum we can see how the image features visible in the mismatched noise prediction at timestep $1000 seem to be corruped similar to how in the forward diffusion corruption trend, we move from image features to gaussian noise dominated latents.</p>
+<p>This is the same noisy latent as before, but now the timestep sent to the pre-trained noise predictor is <span class="math inline">\(500\)</span>. This is the middle of our mismatch probe where the far end of the mismatch spectrum is timestep <span class="math inline">\(1000\)</span> and the correct timestep is <span class="math inline">\(50\)</span>. In this middle point of the spectrum we can see how the image features visible in the mismatched noise prediction at timestep <span class="math inline">\(1000\)</span> seem to be corruped similar to how in the forward diffusion corruption trend, we move from image features to gaussian noise dominated latents.</p>
 <p><img src="updated_blog_assets/mismatch500.png" width="420"></p>
 </section>
 <section id="two-more-fixed-noisy-latent-probes" class="level2">
