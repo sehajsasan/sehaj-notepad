@@ -1,1 +1,53 @@
 /* css styles */
+/* Center blog content and prevent the right TOC/sidebar from overlapping it */
+
+main.content {
+  max-width: 860px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Prevent notebook images and HTML images from spilling into the right sidebar */
+main.content img,
+.quarto-figure img,
+.cell-output-display img,
+.jp-RenderedHTMLCommon img {
+  max-width: 100% !important;
+  height: auto !important;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Keep wide code/math blocks inside the article column */
+main.content pre,
+main.content code,
+main.content .sourceCode,
+main.content mjx-container {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* Keep the right-side table of contents behind the main readable article if overlap happens */
+#quarto-margin-sidebar {
+  z-index: 0;
+}
+
+main.content {
+  position: relative;
+  z-index: 1;
+  background: white;
+}
+
+/* On medium/small screens, hide the right sidebar completely */
+@media (max-width: 1200px) {
+  #quarto-margin-sidebar {
+    display: none !important;
+  }
+
+  main.content {
+    max-width: 860px;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}

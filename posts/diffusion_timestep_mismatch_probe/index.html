@@ -242,6 +242,7 @@ window.Quarto = {
   <li><a href="#correct-noise-prediction" id="toc-correct-noise-prediction" class="nav-link" data-scroll-target="#correct-noise-prediction">Correct noise prediction</a></li>
   <li><a href="#a-direct-mismatch-noisy-latent-at-t50-noise-predictor-probed-at-t800" id="toc-a-direct-mismatch-noisy-latent-at-t50-noise-predictor-probed-at-t800" class="nav-link" data-scroll-target="#a-direct-mismatch-noisy-latent-at-t50-noise-predictor-probed-at-t800">A direct mismatch: noisy latent at <span class="math inline">\(t=50\)</span>, noise predictor probed at <span class="math inline">\(t=800\)</span></a></li>
   <li><a href="#sequential-mismatch-probe" id="toc-sequential-mismatch-probe" class="nav-link" data-scroll-target="#sequential-mismatch-probe">Sequential mismatch probe</a></li>
+  <li><a href="#the-noising-of-noise-pattern" id="toc-the-noising-of-noise-pattern" class="nav-link" data-scroll-target="#the-noising-of-noise-pattern">The Noising of Noise Pattern</a></li>
   <li><a href="#two-more-fixed-noisy-latent-probes" id="toc-two-more-fixed-noisy-latent-probes" class="nav-link" data-scroll-target="#two-more-fixed-noisy-latent-probes">Two more fixed-noisy-latent probes</a></li>
   <li><a href="#my-subjective-interpretation-and-conclusion" id="toc-my-subjective-interpretation-and-conclusion" class="nav-link" data-scroll-target="#my-subjective-interpretation-and-conclusion">My Subjective Interpretation and Conclusion</a>
   <ul class="collapse">
@@ -377,7 +378,7 @@ x_t = \sqrt{\bar{\alpha}_t}\,x_0 + \sqrt{1-\bar{\alpha}_t}\,\epsilon,
 <p><span class="math display">\[
 x_{50} \longrightarrow \epsilon_\theta(x_{50}, 50, c)
 \]</span></p>
-<p><img src="updated_blog_assets/fig_correct.png" width="1200"></p>
+<p><img src="updated_blog_assets/fig_correct.png" style="max-width:100%; height:auto;"></p>
 </section>
 <section id="a-direct-mismatch-noisy-latent-at-t50-noise-predictor-probed-at-t800" class="level2">
 <h2 class="anchored" data-anchor-id="a-direct-mismatch-noisy-latent-at-t50-noise-predictor-probed-at-t800">A direct mismatch: noisy latent at <span class="math inline">\(t=50\)</span>, noise predictor probed at <span class="math inline">\(t=800\)</span></h2>
@@ -397,13 +398,17 @@ x_{50} \longrightarrow \epsilon_\theta(x_{50}, 800, c)
 x_{50} \longrightarrow \epsilon_\theta(x_{50}, \mathrm{off\_t}, c),
 \qquad \mathrm{off\_t} \in \{1000, 950, 900, \ldots, 50\}
 \]</span></p>
-<p><img src="updated_blog_assets/fig_seq.png" width="900"></p>
-<p>Starting from <span class="math inline">\(\mathrm{off\_t}=1000\)</span>, we see that the noise predictions follow a reverse variance schedule pattern where at the most mismatched probe timestep <span class="math inline">\(1000\)</span>, we see most of the image content in the noise prediction and as we move towards the correct timestep <span class="math inline">\(50\)</span>, it seems like the noising of the mismatched noise prediction at <span class="math inline">\(1000\)</span> is happening as progressively the image features are being corrupted as we are going from <span class="math inline">\(1000\)</span> to <span class="math inline">\(50\)</span>.</p>
+<!-- <img src="updated_blog_assets/fig_seq.png" width="900"> -->
+<p><img src="updated_blog_assets/fig_seq.png" style="max-width:100%; height:auto;"></p>
+</section>
+<section id="the-noising-of-noise-pattern" class="level2">
+<h2 class="anchored" data-anchor-id="the-noising-of-noise-pattern">The Noising of Noise Pattern</h2>
+<p>Starting from <span class="math inline">\(\mathrm{off\_t}=1000\)</span>, we see that the noise predictions follow a reverse variance schedule pattern where at the most mismatched probe timestep <span class="math inline">\(1000\)</span>, we see most of the image content in the noise prediction and as we move towards the correct timestep <span class="math inline">\(50\)</span>, it seems like the noising of the mismatched noise prediction at timestep <span class="math inline">\(1000\)</span> is happening as progressively the image features are being corrupted as we are going from timestep <span class="math inline">\(1000\)</span> to <span class="math inline">\(50\)</span>.</p>
 <p>A representative mismatched probe from that sequence is the case <span class="math inline">\(\mathrm{off\_t}=500\)</span>:</p>
 <p><span class="math display">\[
 x_{50} \longrightarrow \epsilon_\theta(x_{50}, 500, c)
 \]</span></p>
-<p>This is the same noisy latent as before, but now the timestep sent to the pre-trained noise predictor is <span class="math inline">\(500\)</span>.</p>
+<p>This is the same noisy latent as before, but now the timestep sent to the pre-trained noise predictor is <span class="math inline">\(500\)</span>. This is the middle of our mismatch probe where the far end of the mismatch spectrum is timestep $1000 and the correct timestep is $50. In this middle point of the spectrum we can see how the image features visible in the mismatched noise prediction at timestep $1000 seem to be corruped similar to how in the forward diffusion corruption trend, we move from image features to gaussian noise dominated latents.</p>
 <p><img src="updated_blog_assets/mismatch500.png" width="420"></p>
 </section>
 <section id="two-more-fixed-noisy-latent-probes" class="level2">
