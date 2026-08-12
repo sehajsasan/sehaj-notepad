@@ -341,6 +341,27 @@ x_{50} \longrightarrow \epsilon_\theta(x_{50}, 500, c)
 Revealed by probe:
     the invalid prediction can systematically preserve image structure, and violate expected gaussian-like noise prediction at the off-timestep probes</code></pre>
 <p>I beleive that this is worth mentioning because many discussions say “wrong timestep = wrong score,” but they do not show what kind of wrong score emerges.</p>
+<section id="an-energy-landscape-interpretation" class="level3">
+<h3 class="anchored" data-anchor-id="an-energy-landscape-interpretation">An energy-landscape interpretation</h3>
+<p>Another way to view the probe is through the score/energy interpretation of diffusion. At each timestep, the model is not predicting a universal denoising direction. It is estimating a direction associated with the noisy distribution at that timestep. If we write an energy-like potential as</p>
+<p><span class="math display">\[
+U_t(x_t \mid c) = -\log p_t(x_t \mid c),
+\]</span></p>
+<p>then the score points in the direction of decreasing potential,</p>
+<p><span class="math display">\[
+s_\theta(x_t,t,c) \approx -\nabla_{x_t} U_t(x_t \mid c).
+\]</span></p>
+<p>Under this view, the mismatch probe is asking the model to apply the wrong timestep-energy landscape to the same latent. The matched query uses the appropriate landscape,</p>
+<p><span class="math display">\[
+x_{50} \rightarrow \epsilon_\theta(x_{50},50,c),
+\]</span></p>
+<p>while the mismatched query applies a high-noise landscape to a low-noise latent,</p>
+<p><span class="math display">\[
+x_{50} \rightarrow \epsilon_\theta(x_{50},800,c).
+\]</span></p>
+<p>This may explain why residual image structure appears in the predicted noise. At high timestep, the model expects the input to be mostly noise, so image structure that is still present in <span class="math inline">\(x_{50}\)</span> can be absorbed into the predicted residual. In this sense, the timestep controls how the model partitions latent energy into signal-like and noise-like components.</p>
+<p>The same point in latent space receives a different denoising force depending on which timestep-conditioned landscape the model is asked to use.</p>
+</section>
 <section id="disclosure-regarding-the-use-of-ai-in-producing-this-blog-post" class="level3">
 <h3 class="anchored" data-anchor-id="disclosure-regarding-the-use-of-ai-in-producing-this-blog-post">Disclosure regarding the use of AI in producing this blog post</h3>
 <p>The first figure of the blog “Conceptual Diagram of the Probe Experiment” is AI-generated where the images inside the figure are provided by me and ChatGPT 5.5 created the experiment’s diagram. The appropriate references below were suggested by the same LLM, and I verified them. The language and thoughts are mine and AI was used to cross-refer interpretations with existing discussions across various sources.</p>
