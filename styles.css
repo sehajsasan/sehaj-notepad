@@ -1,53 +1,104 @@
 /* css styles */
-/* Center blog content and prevent the right TOC/sidebar from overlapping it */
+/* Global site polish */
 
+body {
+  background: #fafafa;
+}
+
+/* Main article reading column */
 main.content {
   max-width: 860px;
   margin-left: auto;
   margin-right: auto;
+  font-size: 1.05rem;
+  line-height: 1.72;
 }
 
-/* Prevent notebook images and HTML images from spilling into the right sidebar */
+/* Title block */
+.quarto-title-block .title {
+  font-size: 2.4rem;
+  line-height: 1.15;
+  margin-bottom: 0.75rem;
+}
+
+.quarto-title-meta {
+  color: #666;
+}
+
+/* Body TOC when toc-location: body is used */
+#TOC {
+  background: #f6f7f8;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0 2.25rem 0;
+}
+
+#TOC .toc-title {
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+#TOC ul {
+  padding-left: 1.1rem;
+  margin-bottom: 0;
+}
+
+#TOC a {
+  text-decoration: none;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+/* Images and notebook outputs */
 main.content img,
 .quarto-figure img,
 .cell-output-display img,
 .jp-RenderedHTMLCommon img {
+  display: block;
   max-width: 100% !important;
   height: auto !important;
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
+  margin: 1.75rem auto;
+  border-radius: 10px;
 }
 
-/* Keep wide code/math blocks inside the article column */
-main.content pre,
-main.content code,
-main.content .sourceCode,
-main.content mjx-container {
+/* Large figures should never escape into side regions */
+figure,
+.cell-output-display {
   max-width: 100%;
   overflow-x: auto;
 }
 
-/* Keep the right-side table of contents behind the main readable article if overlap happens */
-#quarto-margin-sidebar {
-  z-index: 0;
+/* Equations */
+mjx-container {
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
 }
 
-main.content {
-  position: relative;
-  z-index: 1;
-  background: white;
+/* Code blocks */
+pre,
+.sourceCode {
+  max-width: 100%;
+  overflow-x: auto;
+  border-radius: 10px;
 }
 
-/* On medium/small screens, hide the right sidebar completely */
-@media (max-width: 1200px) {
-  #quarto-margin-sidebar {
-    display: none !important;
-  }
+/* References and citation block readability */
+pre code {
+  white-space: pre;
+}
 
+/* Mobile layout */
+@media (max-width: 900px) {
   main.content {
-    max-width: 860px;
+    max-width: 100%;
     padding-left: 1rem;
     padding-right: 1rem;
+    font-size: 1rem;
+  }
+
+  .quarto-title-block .title {
+    font-size: 2rem;
   }
 }

@@ -231,31 +231,7 @@ window.Quarto = {
   </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title">On this page</h2>
-   
-  <ul>
-  <li><a href="#the-noising-of-diffusion-noise-a-timestep-mismatch-probe." id="toc-the-noising-of-diffusion-noise-a-timestep-mismatch-probe." class="nav-link active" data-scroll-target="#the-noising-of-diffusion-noise-a-timestep-mismatch-probe.">The Noising of Diffusion Noise: A Timestep Mismatch Probe.</a>
-  <ul class="collapse">
-  <li><a href="#probe-setup-at-a-glance" id="toc-probe-setup-at-a-glance" class="nav-link" data-scroll-target="#probe-setup-at-a-glance">Probe setup at a glance</a></li>
-  <li><a href="#correct-noise-prediction" id="toc-correct-noise-prediction" class="nav-link" data-scroll-target="#correct-noise-prediction">Correct noise prediction</a></li>
-  <li><a href="#a-direct-mismatch-noisy-latent-at-t50-noise-predictor-probed-at-t800" id="toc-a-direct-mismatch-noisy-latent-at-t50-noise-predictor-probed-at-t800" class="nav-link" data-scroll-target="#a-direct-mismatch-noisy-latent-at-t50-noise-predictor-probed-at-t800">A direct mismatch: noisy latent at <span class="math inline">\(t=50\)</span>, noise predictor probed at <span class="math inline">\(t=800\)</span></a></li>
-  <li><a href="#sequential-mismatch-probe" id="toc-sequential-mismatch-probe" class="nav-link" data-scroll-target="#sequential-mismatch-probe">Sequential mismatch probe</a></li>
-  <li><a href="#the-noising-of-noise-pattern" id="toc-the-noising-of-noise-pattern" class="nav-link" data-scroll-target="#the-noising-of-noise-pattern">The Noising of Noise Pattern</a></li>
-  <li><a href="#two-more-fixed-noisy-latent-probes" id="toc-two-more-fixed-noisy-latent-probes" class="nav-link" data-scroll-target="#two-more-fixed-noisy-latent-probes">Two more fixed-noisy-latent probes</a></li>
-  <li><a href="#my-subjective-interpretation-and-conclusion" id="toc-my-subjective-interpretation-and-conclusion" class="nav-link" data-scroll-target="#my-subjective-interpretation-and-conclusion">My Subjective Interpretation and Conclusion</a>
-  <ul class="collapse">
-  <li><a href="#disclosure-regarding-the-use-of-ai-in-producing-this-blog-post" id="toc-disclosure-regarding-the-use-of-ai-in-producing-this-blog-post" class="nav-link" data-scroll-target="#disclosure-regarding-the-use-of-ai-in-producing-this-blog-post">Disclosure regarding the use of AI in producing this blog post</a></li>
-  </ul></li>
-  <li><a href="#how-to-cite-this-post" id="toc-how-to-cite-this-post" class="nav-link" data-scroll-target="#how-to-cite-this-post">How to cite this post</a></li>
-  <li><a href="#references-and-acknowledgements" id="toc-references-and-acknowledgements" class="nav-link" data-scroll-target="#references-and-acknowledgements">References and acknowledgements</a>
-  <ul class="collapse">
-  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
-  </ul></li>
-  </ul></li>
-  </ul>
-</nav>
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
     </div>
 <!-- main -->
 <main class="content quarto-banner-title-block" id="quarto-document-content">
@@ -263,93 +239,24 @@ window.Quarto = {
 
 
 
-
-<style>
-/* Make nbconvert output look like a centered technical blog page */
-
-body {
-  background: #ffffff;
-  margin: 0;
-  padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-}
-
-/* Main notebook container */
-.jp-Notebook {
-  max-width: 900px;
-  margin: 0 auto !important;
-  padding: 48px 24px 80px 24px;
-}
-
-/* Center every cell */
-.jp-Cell {
-  max-width: 900px;
-  margin-left: auto !important;
-  margin-right: auto !important;
-}
-
-/* Markdown text */
-.jp-MarkdownOutput {
-  font-size: 18px;
-  line-height: 1.7;
-  color: #222;
-}
-
-/* Headings */
-.jp-MarkdownOutput h1 {
-  font-size: 42px;
-  line-height: 1.2;
-  margin-top: 0;
-  margin-bottom: 32px;
-}
-
-.jp-MarkdownOutput h2 {
-  font-size: 30px;
-  margin-top: 48px;
-  margin-bottom: 18px;
-}
-
-.jp-MarkdownOutput h3 {
-  font-size: 24px;
-  margin-top: 36px;
-  margin-bottom: 14px;
-}
-
-/* Images */
-.jp-MarkdownOutput img,
-.jp-OutputArea-output img {
-  display: block;
-  max-width: 100%;
-  height: auto;
-  margin: 28px auto;
-}
-
-/* Equations */
-.jp-MarkdownOutput .MathJax,
-.jp-MarkdownOutput mjx-container {
-  font-size: 105%;
-}
-
-/* Code blocks */
-pre {
-  max-width: 100%;
-  overflow-x: auto;
-  border-radius: 8px;
-  padding: 16px;
-}
-
-/* Optional: hide notebook input/output prompts */
-.jp-InputPrompt,
-.jp-OutputPrompt {
-  display: none !important;
-}
-
-/* Optional: hide code cells if the notebook is meant to read like a blog */
-.jp-CodeCell {
-  margin-top: 24px;
-  margin-bottom: 24px;
-}
-</style>
+<nav id="TOC" role="doc-toc">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#the-noising-of-diffusion-noise-a-timestep-mismatch-probe." id="toc-the-noising-of-diffusion-noise-a-timestep-mismatch-probe.">The Noising of Diffusion Noise: A Timestep Mismatch Probe.</a>
+  <ul>
+  <li><a href="#probe-setup-at-a-glance" id="toc-probe-setup-at-a-glance">Probe setup at a glance</a></li>
+  <li><a href="#correct-noise-prediction" id="toc-correct-noise-prediction">Correct noise prediction</a></li>
+  <li><a href="#a-direct-mismatch-noisy-latent-at-t50-noise-predictor-probed-at-t800" id="toc-a-direct-mismatch-noisy-latent-at-t50-noise-predictor-probed-at-t800">A direct mismatch: noisy latent at <span class="math inline">\(t=50\)</span>, noise predictor probed at <span class="math inline">\(t=800\)</span></a></li>
+  <li><a href="#sequential-mismatch-probe" id="toc-sequential-mismatch-probe">Sequential mismatch probe</a></li>
+  <li><a href="#the-noising-of-noise-pattern" id="toc-the-noising-of-noise-pattern">The Noising of Noise Pattern</a></li>
+  <li><a href="#two-more-fixed-noisy-latent-probes" id="toc-two-more-fixed-noisy-latent-probes">Two more fixed-noisy-latent probes</a></li>
+  <li><a href="#my-subjective-interpretation-and-conclusion" id="toc-my-subjective-interpretation-and-conclusion">My Subjective Interpretation and Conclusion</a></li>
+  <li><a href="#how-to-cite-this-post" id="toc-how-to-cite-this-post">How to cite this post</a></li>
+  <li><a href="#references-and-acknowledgements" id="toc-references-and-acknowledgements">References and acknowledgements</a></li>
+  </ul></li>
+  </ul>
+</nav>
 <section id="the-noising-of-diffusion-noise-a-timestep-mismatch-probe." class="level1">
 <h1>The Noising of Diffusion Noise: A Timestep Mismatch Probe.</h1>
 <p>For a noise predicting diffusion model, at each timestep, the model says: “Given this noisy latent and this noise level, here is my best guess of the clean image, and here is the noise/direction needed to move one step down the schedule.” And then the sampler says: “I will not fully trust this as the final image yet. I will use it to move to the next lower-noise state and ask again.”</p>
